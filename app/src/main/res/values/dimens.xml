@@ -1,0 +1,5 @@
+<resources>
+    <dimen name="avatarDimen">48dp</dimen>
+    <dimen name="defaultMargin">16dp</dimen>
+    <dimen name="bottomPostIconDimen">24dp</dimen>
+</resources>

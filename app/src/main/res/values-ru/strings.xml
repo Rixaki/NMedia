@@ -2,4 +2,5 @@
 <resources>
     <string name="app_name">НМедиа</string>
     <string name="helloText">Привет, пользователь!</string>
+    <string name="descriptionPostAuthorAvatar">Аватар автора поста</string>
 </resources>
