@@ -3,11 +3,10 @@ package ru.netology.nmedia.funcs
 import kotlin.math.log
 import kotlin.math.pow
 
-fun countToString (x: Long): String {
+fun countToString(x: Long): String {
     if (x == 0L) {
         return "0"
-    }
-    else {
+    } else {
         when (log(x + 0.0, 10.0).toInt()) {
             0, 1, 2 -> return x.toString()
             3, 4, 5 -> return ("%.2f".format((x + 0.0) * (10.0).pow(-3.0))) + "K"

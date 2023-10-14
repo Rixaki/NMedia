@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import ru.netology.nmedia.repository.PostRepoInMemImpl
 import ru.netology.nmedia.repository.PostRepository
 
-class PostViewModel: ViewModel() {
+class PostViewModel : ViewModel() {
     private val repository: PostRepository = PostRepoInMemImpl()
 
     val data = repository.getAll()
