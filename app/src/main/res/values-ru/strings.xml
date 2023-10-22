@@ -4,4 +4,11 @@
     <string name="helloText">Привет, пользователь!</string>
     <string name="descriptionPostAuthorAvatar">Аватар автора поста</string>
     <string name="menu_description">Пост меню</string>
+    <string name="remove">Удалить</string>
+    <string name="post_text">Введите текст поста</string>
+    <string name="empty_content">Текст пустой.</string>
+    <string name="editInMenu">Редактировать</string>
+    <string name="editBarTitle">Редактирование...</string>
+    <string name="cancell_button_description">Отмена редактирования</string>
+    <string name="save_button_description">Сохранение</string>
 </resources>

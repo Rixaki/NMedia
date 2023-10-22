@@ -3,4 +3,11 @@
     <string name="helloText">Hello, User!</string>
     <string name="descriptionPostAuthorAvatar">Post author avatar</string>
     <string name="menu_description">Post menu</string>
+    <string name="remove">Remove</string>
+    <string name="post_text">Post text</string>
+    <string name="empty_content">Text is empty.</string>
+    <string name="editInMenu">Edit</string>
+    <string name="editBarTitle">Editing...</string>
+    <string name="cancell_button_description">Cancell button</string>
+    <string name="save_button_description">Save button</string>
 </resources>

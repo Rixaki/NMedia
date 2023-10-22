@@ -2,4 +2,5 @@
     <dimen name="avatarDimen">48dp</dimen>
     <dimen name="defaultMargin">16dp</dimen>
     <dimen name="bottomPostIconDimen">24dp</dimen>
+    <dimen name="buttonDefaultMarginDim">8dp</dimen>
 </resources>

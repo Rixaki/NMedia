@@ -1,10 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/list"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-    tools:listitem="@layout/card_post"></androidx.recyclerview.widget.RecyclerView>
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toTopOf="@id/editingOrNotBarrier"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:listitem="@layout/card_post" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/editingOrNotBarrier"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:barrierDirection="top"
+        app:constraint_referenced_ids="inputBarrier, editBarGroup"/>
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/inputBarrier"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:barrierDirection="top"
+        app:constraint_referenced_ids="editingContent, save"/>
+    
+    <EditText
+        android:id="@+id/editingContent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="@android:color/transparent"
+        app:layout_constraintEnd_toStartOf="@id/save"
+        android:autofillHints="no"
+        android:maxLines="5"
+        android:hint="@string/post_text"
+        android:inputType="textMultiLine"/>
+
+        <ImageButton
+            android:id="@+id/save"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:background="@android:color/transparent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/baseline_check_circle_48dp"
+            android:contentDescription="@string/save_button_description"
+            android:layout_marginEnd="@dimen/buttonDefaultMarginDim"
+            />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/editBarGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:constraint_referenced_ids="cancelEdit,noteEdit,editBarTitle,editedHas"
+        app:layout_constraintTop_toTopOf="@+id/editBarBarrier" />
+
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/editBarBarrier"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:barrierDirection="top"
+        app:barrierAllowsGoneWidgets="true"
+        app:constraint_referenced_ids="cancelEdit, noteEdit, editBarTitle, editedHas"/>
+
+    <ImageButton
+        android:id="@+id/cancelEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/baseline_cancel_48dp"
+        android:background="@android:color/transparent"
+        app:layout_constraintBottom_toTopOf="@id/inputBarrier"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="@dimen/buttonDefaultMarginDim"
+        android:contentDescription="@string/cancell_button_description" />
+
+    <ImageView
+        android:id="@+id/noteEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/baseline_edit_note_48dp"
+        android:layout_marginStart="@dimen/buttonDefaultMarginDim"
+        app:layout_constraintBottom_toTopOf="@id/inputBarrier"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <TextView
+        android:id="@+id/editBarTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/editBarTitle"
+        app:layout_constraintTop_toTopOf="@id/noteEdit"
+        app:layout_constraintBottom_toTopOf="@id/editedHas"
+        app:layout_constraintStart_toEndOf="@id/noteEdit"/>
+
+    <TextView
+        android:id="@+id/editedHas"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="some text"
+        android:background="@android:color/transparent"
+        app:layout_constraintBottom_toBottomOf="@id/noteEdit"
+        app:layout_constraintStart_toEndOf="@id/noteEdit"
+        app:layout_constraintEnd_toStartOf="@id/cancelEdit"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:layout_marginBottom="4dp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
 
