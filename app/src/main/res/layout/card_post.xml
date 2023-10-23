@@ -53,7 +53,7 @@
         app:layout_constraintTop_toTopOf="@id/avatar" />
 
     <TextView
-        android:id="@+id/editingContent"
+        android:id="@+id/cardContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/defaultMargin"
@@ -77,7 +77,7 @@
         android:padding="@dimen/defaultMargin"
         app:barrierDirection="bottom"
         app:barrierMargin="@dimen/defaultMargin"
-        app:constraint_referenced_ids="editingContent" />
+        app:constraint_referenced_ids="cardContent" />
 
     <ImageButton
         android:id="@+id/likeIv"

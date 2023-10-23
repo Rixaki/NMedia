@@ -29,10 +29,10 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:barrierDirection="top"
-        app:constraint_referenced_ids="editingContent, save"/>
+        app:constraint_referenced_ids="content, save"/>
     
     <EditText
-        android:id="@+id/editingContent"
+        android:id="@+id/content"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:padding="8dp"

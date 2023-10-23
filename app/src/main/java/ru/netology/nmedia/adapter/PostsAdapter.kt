@@ -73,7 +73,7 @@ class PostViewHolder(
         with(binding) {
             author.text = post.author
             publishedTime.text = post.published
-            editingContent.text = post.content
+            cardContent.text = post.content
             likeIv.setImageResource(
                 if (post.likedByMe) R.drawable.ic_baseline_thumb_up_24pd
                 else R.drawable.baseline_thumb_up_off_alt_24dp

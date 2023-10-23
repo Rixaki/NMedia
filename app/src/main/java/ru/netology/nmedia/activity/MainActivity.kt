@@ -12,6 +12,7 @@ import ru.netology.nmedia.adapter.OnIterationListener
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.ActivityMainBinding
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.util.AndroidUtils
 import ru.netology.nmedia.util.AndroidUtils.focusAndShowKeyboard
 import ru.netology.nmedia.util.hideKeyBoard
 import ru.netology.nmedia.viewmodel.PostViewModel
@@ -60,13 +61,13 @@ class MainActivity : AppCompatActivity() {
             if (post.id != 0L) {
                 binding.editBarGroup.visibility = View.VISIBLE
                 binding.editedHas.text = post.content
-                binding.editingContent.setText(post.content)
-                binding.editingContent.focusAndShowKeyboard()
+                binding.content.setText(post.content)
+                binding.content.focusAndShowKeyboard()
             }
         }
 
         binding.save.setOnClickListener {//it of View
-            val text: String = binding.editingContent.text.toString()
+            val text: String = binding.content.text.toString()
             if (text.isBlank()) {
                 Toast.makeText(this, R.string.empty_content, Toast.LENGTH_LONG).show()
                 return@setOnClickListener
@@ -75,12 +76,12 @@ class MainActivity : AppCompatActivity() {
             viewModel.changeContent(text)
             viewModel.save()
 
-            with(binding.editingContent) {
+            with(binding.content) {
                 setText("")
                 clearFocus()
             }
-            //AndroidUtils.hideKeyBoard(it)
-            it.hideKeyBoard()
+            AndroidUtils.hideKeyBoard(it)
+            //it.hideKeyBoard()
 
             /*
             viewModel.edited.observe(this) {post ->
@@ -93,13 +94,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.cancelEdit.setOnClickListener {
-            with(binding.editingContent) {
+            with(binding.content) {
                 viewModel.cancelEdit()
                 setText("")
                 clearFocus()
             }
-            //AndroidUtils.hideKeyBoard(it)
-            it.hideKeyBoard()
+            AndroidUtils.hideKeyBoard(it)
+            //it.hideKeyBoard()
             /*
             viewModel.edited.observe(this) {post ->
                 if (post.id != 0L) {
