@@ -1,12 +1,12 @@
 package ru.netology.nmedia.activity
 
 import android.os.Bundle
+import android.view.MenuInflater
 import android.view.View
-import android.view.WindowManager
-import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.menu.MenuBuilder
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnIterationListener
 import ru.netology.nmedia.adapter.PostsAdapter
@@ -14,7 +14,6 @@ import ru.netology.nmedia.databinding.ActivityMainBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.util.AndroidUtils
 import ru.netology.nmedia.util.AndroidUtils.focusAndShowKeyboard
-import ru.netology.nmedia.util.hideKeyBoard
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 
@@ -28,7 +27,7 @@ class MainActivity : AppCompatActivity() {
         binding.editBarGroup.visibility = View.GONE
 
         val viewModel: PostViewModel by viewModels()
-        val adapter = PostsAdapter(object : OnIterationListener{
+        val adapter = PostsAdapter(object : OnIterationListener {
             override fun onLikeLtn(post: Post) {
                 viewModel.likeById(post.id)
             }
@@ -57,7 +56,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        viewModel.edited.observe(this) {post ->
+        viewModel.edited.observe(this) { post ->
             if (post.id != 0L) {
                 binding.editBarGroup.visibility = View.VISIBLE
                 binding.editedHas.text = post.content
@@ -69,12 +68,12 @@ class MainActivity : AppCompatActivity() {
         binding.save.setOnClickListener {//it of View
             val text: String = binding.content.text.toString()
             if (text.isBlank()) {
-                Toast.makeText(this, R.string.empty_content, Toast.LENGTH_LONG).show()
+                Toast.makeText(this, R.string.empty_content, Toast.LENGTH_LONG)
+                    .show()
                 return@setOnClickListener
             }
-
-            viewModel.changeContent(text)
-            viewModel.save()
+            
+            viewModel.changeContentAndSave(text)
 
             with(binding.content) {
                 setText("")

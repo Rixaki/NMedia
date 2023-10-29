@@ -6,16 +6,21 @@ import android.view.ViewTreeObserver
 import android.view.inputmethod.InputMethodManager
 
 
-fun View.hideKeyBoard(){
-    val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-    imm.hideSoftInputFromWindow(windowToken, InputMethodManager.RESULT_UNCHANGED_HIDDEN)
+fun View.hideKeyBoard() {
+    val imm =
+        context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    imm.hideSoftInputFromWindow(
+        windowToken,
+        InputMethodManager.RESULT_UNCHANGED_HIDDEN
+    )
     //imm.hideSoftInputFromWindow(view.windowToken, InputMethodManager.RESULT_UNCHANGED_HIDDEN);
 }
 
 object AndroidUtils {
 
-    fun hideKeyBoard(view: View){
-        val imm = view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    fun hideKeyBoard(view: View) {
+        val imm =
+            view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(view.windowToken, 0)
         //imm.hideSoftInputFromWindow(view.windowToken, InputMethodManager.RESULT_UNCHANGED_HIDDEN);
     }
@@ -30,7 +35,8 @@ object AndroidUtils {
                 post {
                     // We still post the call, just in case we are being notified of the windows focus
                     // but InputMethodManager didn't get properly setup yet.
-                    val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    val imm =
+                        context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                     imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
                 }
             }
@@ -49,7 +55,9 @@ object AndroidUtils {
                         if (hasFocus) {
                             this@focusAndShowKeyboard.showTheKeyboardNow()
                             // It’s very important to remove this listener once we are done.
-                            viewTreeObserver.removeOnWindowFocusChangeListener(this)
+                            viewTreeObserver.removeOnWindowFocusChangeListener(
+                                this
+                            )
                         }
                     }
                 })

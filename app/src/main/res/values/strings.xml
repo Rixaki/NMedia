@@ -10,4 +10,5 @@
     <string name="editBarTitle">Editing...</string>
     <string name="cancell_button_description">Cancell button</string>
     <string name="save_button_description">Save button</string>
+    <string name="share_post">Share post</string>
 </resources>
