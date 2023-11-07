@@ -10,18 +10,29 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toTopOf="@id/editingOrNotBarrier"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:listitem="@layout/card_post" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/newPostButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/defaultMargin"
+        android:src="@drawable/baseline_add_48"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+
+    <!--
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/editingOrNotBarrier"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:barrierDirection="top"
-        app:constraint_referenced_ids="inputBarrier, editBarGroup" />
+        app:constraint_referenced_ids="inputBarrier" />
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/inputBarrier"
@@ -43,6 +54,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/save"
         app:layout_constraintStart_toStartOf="parent" />
+
 
     <ImageButton
         android:id="@+id/save"
@@ -113,6 +125,7 @@
         app:layout_constraintBottom_toBottomOf="@id/noteEdit"
         app:layout_constraintEnd_toStartOf="@id/cancelEdit"
         app:layout_constraintStart_toEndOf="@id/noteEdit" />
+        -->
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

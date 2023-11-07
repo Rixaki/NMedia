@@ -1,12 +1,17 @@
 package ru.netology.nmedia.activity
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.MenuInflater
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.launch
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.MenuBuilder
+import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnIterationListener
 import ru.netology.nmedia.adapter.PostsAdapter
@@ -24,26 +29,64 @@ class MainActivity : AppCompatActivity() {
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.editBarGroup.visibility = View.GONE
-
         val viewModel: PostViewModel by viewModels()
+
+        //binding.editBarGroup.visibility = View.GONE
+        val newPostContract = registerForActivityResult(NewOrEditPostResultContract(null)) { result ->
+            result ?: return@registerForActivityResult
+            viewModel.changeContentAndSave(result)
+        }
+
+        binding.newPostButton.setOnClickListener {
+            newPostContract.launch(null)
+        }
+
+
+        val editPostContract = registerForActivityResult(NewOrEditPostResultContract(null)) { result ->
+            result ?: return@registerForActivityResult
+            viewModel.changeContentAndSave(result)
+        }
+
         val adapter = PostsAdapter(object : OnIterationListener {
             override fun onLikeLtn(post: Post) {
                 viewModel.likeById(post.id)
             }
 
             override fun onShareLtn(post: Post) {
-                viewModel.shareById(post.id)
+                //viewModel.shareById(post.id)
+                val intent = Intent().apply {
+                    action = Intent.ACTION_SEND
+                    putExtra(Intent.EXTRA_TEXT, post.content)
+                    type = "text/plain"
+                }
+
+                //val chooserIntent = Intent.createChooser(intent, getString(R.string.chooser_share_post))
+                val chooserIntent = Intent.createChooser(intent, null)//ACTION_SEND have not optional title
+                startActivity(chooserIntent)
             }
 
             override fun onEditLtn(post: Post) {
-                viewModel.edit(post)
+                //viewModel.edit(post)
+                editPostContract.launch(post.content)
             }
 
             override fun onRemoveLtn(post: Post) {
                 viewModel.removeById(post.id)
             }
 
+            override fun onPlayVideoLtn(post: Post) {
+                if (!post.video.isNullOrBlank()) {
+                    val url = post.video
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                    try {
+                        startActivity(intent)
+                    } catch (ex: ActivityNotFoundException) {
+                        Snackbar.make(binding.root,
+                            getString(R.string.video_play_error), Snackbar.LENGTH_SHORT).show()
+                        onPlayVideoLtn@return
+                    }
+                }
+            }
         })
 
         binding.list.adapter = adapter
@@ -54,60 +97,6 @@ class MainActivity : AppCompatActivity() {
                     binding.list.smoothScrollToPosition(0)//submitlist is ansync!!!
                 }
             }
-        }
-
-        viewModel.edited.observe(this) { post ->
-            if (post.id != 0L) {
-                binding.editBarGroup.visibility = View.VISIBLE
-                binding.editedHas.text = post.content
-                binding.content.setText(post.content)
-                binding.content.focusAndShowKeyboard()
-            }
-        }
-
-        binding.save.setOnClickListener {//it of View
-            val text: String = binding.content.text.toString()
-            if (text.isBlank()) {
-                Toast.makeText(this, R.string.empty_content, Toast.LENGTH_LONG)
-                    .show()
-                return@setOnClickListener
-            }
-            
-            viewModel.changeContentAndSave(text)
-
-            with(binding.content) {
-                setText("")
-                clearFocus()
-            }
-            AndroidUtils.hideKeyBoard(it)
-            //it.hideKeyBoard()
-
-            /*
-            viewModel.edited.observe(this) {post ->
-                if (post.id != 0L) {
-                    binding.editBarGroup.visibility = View.GONE
-                }
-            }
-            */
-            binding.editBarGroup.visibility = View.GONE
-        }
-
-        binding.cancelEdit.setOnClickListener {
-            with(binding.content) {
-                viewModel.cancelEdit()
-                setText("")
-                clearFocus()
-            }
-            AndroidUtils.hideKeyBoard(it)
-            //it.hideKeyBoard()
-            /*
-            viewModel.edited.observe(this) {post ->
-                if (post.id != 0L) {
-                    binding.editBarGroup.visibility = View.GONE
-                }
-            }
-            */
-            binding.editBarGroup.visibility = View.GONE
         }
     }
 }

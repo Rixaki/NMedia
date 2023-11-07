@@ -80,7 +80,7 @@
         android:padding="@dimen/defaultMargin"
         app:barrierDirection="bottom"
         app:barrierMargin="@dimen/defaultMargin"
-        app:constraint_referenced_ids="cardContent" />
+        app:constraint_referenced_ids="cardContent, videoWallpaper" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/likeIv"
@@ -136,6 +136,35 @@
         app:icon="@drawable/ic_baseline_remove_red_eye_24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/barrierPostContentBottom" />
+
+    <ImageView
+        android:id="@+id/videoWallpaper"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintHeight_max="200dp"
+        android:layout_margin="@dimen/defaultMargin"
+        app:layout_constraintTop_toBottomOf="@id/cardContent"
+        tools:srcCompat="@tools:sample/backgrounds/scenic" />
+
+    <ImageView
+        android:id="@+id/playVideo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/baseline_play_circle_outline_48"
+        app:layout_constraintTop_toTopOf="@id/videoWallpaper"
+        app:layout_constraintBottom_toBottomOf="@id/videoWallpaper"
+        app:layout_constraintStart_toStartOf="@id/videoWallpaper"
+        app:layout_constraintEnd_toEndOf="@id/videoWallpaper"/>
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/videoGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        android:clickable="true"
+        android:focusable="true"
+        app:constraint_referenced_ids="videoWallpaper, playVideo"
+        />
     <!--
     <ImageButton
         android:id="@+id/shareIv"

@@ -1,10 +1,12 @@
 package ru.netology.nmedia.adapter
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import android.view.LayoutInflater
-import android.view.MenuInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
-import androidx.appcompat.view.menu.MenuBuilder
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -19,6 +21,8 @@ interface OnIterationListener {
     fun onShareLtn(post: Post) {}
     fun onEditLtn(post: Post) {}
     fun onRemoveLtn(post: Post) {}
+
+    fun onPlayVideoLtn(post: Post) {}
 }
 
 class PostsAdapter(
@@ -89,6 +93,16 @@ class PostViewHolder(
                 onIterationListener.onShareLtn(post)
                 }
 
+            videoGroup.setOnClickListener {
+                onIterationListener.onPlayVideoLtn(post)
+            }
+            
+            if (!post.video.isNullOrBlank()) {
+                videoGroup.visibility = View.VISIBLE
+            } else {
+                videoGroup.visibility = View.GONE
+            }
+
             menu.setOnClickListener {
                 PopupMenu(it.context, it).apply {
                     inflate(R.menu.options_post)
@@ -108,7 +122,6 @@ class PostViewHolder(
                         }
                     }
                 }.show()
-                menu.icon
             }
         }//with binding
     }
