@@ -59,6 +59,7 @@ class MainActivity : AppCompatActivity() {
                     putExtra(Intent.EXTRA_TEXT, post.content)
                     type = "text/plain"
                 }
+                intent.putExtra("postId", post.id.toLong())
 
                 //val chooserIntent = Intent.createChooser(intent, getString(R.string.chooser_share_post))
                 val chooserIntent = Intent.createChooser(intent, null)//ACTION_SEND have not optional title
@@ -66,8 +67,9 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onEditLtn(post: Post) {
-                //viewModel.edit(post)
-                editPostContract.launch(post.content)
+                viewModel.edit(post)
+                val postInfo = PostInfo(post.id, post.content)
+                editPostContract.launch(postInfo)
             }
 
             override fun onRemoveLtn(post: Post) {

@@ -2,8 +2,10 @@ package ru.netology.nmedia.activity
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import ru.netology.nmedia.databinding.ActivityNewOrEditPostBinding
+import ru.netology.nmedia.viewmodel.PostViewModel
 
 class NewOrEditPostActivity() : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -11,23 +13,36 @@ class NewOrEditPostActivity() : AppCompatActivity() {
         val binding = ActivityNewOrEditPostBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val viewModel: PostViewModel by viewModels()
+
         val bundle : Bundle? = intent.extras
-        val startText = bundle?.getString("input")
+        val startText = bundle?.getString("content")
+        val postId = bundle?.getLong("id")
+
         binding.content.setText(startText)
         binding.content.requestFocus()
 
         binding.save.setOnClickListener {
-            val postId = binding.content.id
             val text = binding.content.text.toString()
 
             if (text.isBlank()) {
             } else {
-                setResult(RESULT_OK, Intent().putExtra(Intent.EXTRA_TEXT, text))
+                if(postId == 0L) {
+                    setResult(RESULT_OK, Intent().putExtra(Intent.EXTRA_TEXT, text))
+                } else {
+                    //setResult(RESULT_OK, Intent().putExtra(Intent.ACTION_EDIT, text))
+                    viewModel.changeContentAndSave(text)
+                    setResult(RESULT_OK)
+                }
             }
-
+            viewModel.changeContentAndSave(text)
             finish()
         }
 
+        binding.cancelButton.setOnClickListener {
+            viewModel.cancelEdit()
+            finish()
+        }
     }
 }
 

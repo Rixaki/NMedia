@@ -8,14 +8,14 @@
 
     <EditText
         android:id="@+id/content"
-        android:gravity="top"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:text="@tools:sample/lorem[35]"
-        app:layout_constraintStart_toStartOf="parent"
+        android:gravity="top"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        tools:text="@tools:sample/lorem[35]" />
 
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/bottomAppBar"
@@ -25,11 +25,30 @@
         style="@style/ThemeOverlay.Material3.BottomAppBar"
         android:layout_gravity="bottom" />
 
+    <com.google.android.material.bottomappbar.BottomAppBar
+        android:id="@+id/bottomAppBar2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:fabAlignmentMode="end"
+        android:visibility="invisible"
+        style="@style/ThemeOverlay.Material3.BottomAppBar"
+        android:layout_gravity="bottom" />
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/save"
         android:contentDescription="@string/save_button_description"
         app:layout_anchor="@id/bottomAppBar"
         app:srcCompat="@drawable/baseline_check_48"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/cancel_button"
+        android:contentDescription="@string/cancel_post_text"
+        app:layout_anchor="@id/bottomAppBar2"
+        style="@style/Widget.Material3.FloatingActionButton.Tertiary"
+        app:srcCompat="@drawable/baseline_cross_48"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         />

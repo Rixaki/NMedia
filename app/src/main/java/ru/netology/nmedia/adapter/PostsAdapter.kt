@@ -93,10 +93,14 @@ class PostViewHolder(
                 onIterationListener.onShareLtn(post)
                 }
 
-            videoGroup.setOnClickListener {
+            videoWallpaper.setOnClickListener {
                 onIterationListener.onPlayVideoLtn(post)
             }
-            
+
+            playVideo.setOnClickListener {
+                onIterationListener.onPlayVideoLtn(post)
+            }
+
             if (!post.video.isNullOrBlank()) {
                 videoGroup.visibility = View.VISIBLE
             } else {

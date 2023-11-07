@@ -5,9 +5,17 @@ import android.content.Context
 import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContract
 
-class NewOrEditPostResultContract(input: String?) : ActivityResultContract<String?, String?>() {
+class PostInfo (
+    val id: Long?,
+    val content: String?
+)
 
-    override fun createIntent(context: Context, input: String?): Intent = Intent(context, NewOrEditPostActivity()::class.java).putExtra("input", input)
+class NewOrEditPostResultContract(input: PostInfo?) : ActivityResultContract<PostInfo?, String?>() {
+
+    override fun createIntent(context: Context, input: PostInfo?): Intent = Intent(context, NewOrEditPostActivity()::class.java).apply {
+        putExtra("content", input?.content)
+        putExtra("id", input?.id)
+    }
 
     override fun parseResult(resultCode: Int, intent: Intent?): String? =
         if (resultCode == Activity.RESULT_OK) {

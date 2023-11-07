@@ -15,4 +15,5 @@
     <string name="chooser_share_post">Куда распространить?</string>
     <string name="empty_text_error">Пустой текст</string>
     <string name="video_play_error">Нет приложения для проигрывания видео</string>
+    <string name="cancel_post_text">Отменить пост</string>
 </resources>
