@@ -17,7 +17,6 @@ class NewOrEditPostActivity() : AppCompatActivity() {
 
         val bundle : Bundle? = intent.extras
         val startText = bundle?.getString("content")
-        val postId = bundle?.getLong("id")
 
         binding.content.setText(startText)
         binding.content.requestFocus()
