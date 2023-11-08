@@ -43,7 +43,10 @@ class MainActivity : AppCompatActivity() {
 
 
         val editPostContract = registerForActivityResult(NewOrEditPostResultContract(null)) { result ->
-            result ?: return@registerForActivityResult
+            if(result == null) {
+                viewModel.cancelEdit()
+                result ?: return@registerForActivityResult
+            }
             viewModel.changeContentAndSave(result)
         }
 
@@ -68,8 +71,7 @@ class MainActivity : AppCompatActivity() {
 
             override fun onEditLtn(post: Post) {
                 viewModel.edit(post)
-                val postInfo = PostInfo(post.id, post.content)
-                editPostContract.launch(postInfo)
+                editPostContract.launch(post.content)
             }
 
             override fun onRemoveLtn(post: Post) {

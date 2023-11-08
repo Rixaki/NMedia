@@ -26,21 +26,15 @@ class NewOrEditPostActivity() : AppCompatActivity() {
             val text = binding.content.text.toString()
 
             if (text.isBlank()) {
+                setResult(RESULT_CANCELED)
             } else {
-                if(postId == 0L) {
-                    setResult(RESULT_OK, Intent().putExtra(Intent.EXTRA_TEXT, text))
-                } else {
-                    //setResult(RESULT_OK, Intent().putExtra(Intent.ACTION_EDIT, text))
-                    viewModel.changeContentAndSave(text)
-                    setResult(RESULT_OK)
-                }
+                setResult(RESULT_OK, Intent().putExtra(Intent.EXTRA_TEXT, text))
             }
-            viewModel.changeContentAndSave(text)
             finish()
         }
 
         binding.cancelButton.setOnClickListener {
-            viewModel.cancelEdit()
+            setResult(RESULT_CANCELED)
             finish()
         }
     }
