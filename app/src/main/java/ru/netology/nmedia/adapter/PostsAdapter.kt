@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ru.netology.nmedia.R
-import ru.netology.nmedia.databinding.CardPostBinding
+import ru.netology.nmedia.databinding.FragmentPostBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.funcs.countToString
 
@@ -21,8 +21,8 @@ interface OnIterationListener {
     fun onShareLtn(post: Post) {}
     fun onEditLtn(post: Post) {}
     fun onRemoveLtn(post: Post) {}
-
     fun onPlayVideoLtn(post: Post) {}
+    fun onRootLtn(post: Post) {}
 }
 
 class PostsAdapter(
@@ -33,7 +33,7 @@ class PostsAdapter(
         parent: ViewGroup,
         viewType: Int
     ): PostViewHolder {
-        val view = CardPostBinding.inflate(
+        val view = FragmentPostBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
@@ -69,7 +69,7 @@ class PostsAdapter(
 }
 
 class PostViewHolder(
-    private val binding: CardPostBinding,
+    private val binding: FragmentPostBinding,
     private val onIterationListener: OnIterationListener
 ) : RecyclerView.ViewHolder(binding.root) {
     fun bind(post: Post) {
@@ -105,6 +105,10 @@ class PostViewHolder(
                 videoGroup.visibility = View.VISIBLE
             } else {
                 videoGroup.visibility = View.GONE
+            }
+
+            root.setOnClickListener {
+                onIterationListener.onRootLtn(post)
             }
 
             menu.setOnClickListener {

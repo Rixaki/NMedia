@@ -18,6 +18,7 @@ private val empty = Post(
     published = ""
 )
 
+//viewmodel exist in 1 Activity!!!
 //class PostViewModel : ViewModel() {
 class PostViewModel(application: Application): AndroidViewModel(application) {
     //application extends context!!!
