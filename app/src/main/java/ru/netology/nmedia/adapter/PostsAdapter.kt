@@ -1,8 +1,5 @@
 package ru.netology.nmedia.adapter
 
-import android.content.ActivityNotFoundException
-import android.content.Intent
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -69,6 +66,7 @@ class PostsAdapter(
 }
 
 class PostViewHolder(
+   //private val binding: FragmentPostInScrollviewBinding,
     private val binding: FragmentPostBinding,
     private val onIterationListener: OnIterationListener
 ) : RecyclerView.ViewHolder(binding.root) {
@@ -107,7 +105,7 @@ class PostViewHolder(
                 videoGroup.visibility = View.GONE
             }
 
-            root.setOnClickListener {
+            postConstrainLayout.setOnClickListener {
                 onIterationListener.onRootLtn(post)
             }
 

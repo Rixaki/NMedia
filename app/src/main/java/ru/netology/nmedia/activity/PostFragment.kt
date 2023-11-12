@@ -7,24 +7,18 @@ import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.MeasureSpec
 import android.view.ViewGroup
-import android.widget.ScrollView
-import androidx.core.view.size
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewOrEditPostFragment.Companion.textArg
 import ru.netology.nmedia.adapter.OnIterationListener
-import ru.netology.nmedia.adapter.PostsAdapter
+import ru.netology.nmedia.adapter.PostViewHolder
 import ru.netology.nmedia.databinding.FragmentPostBinding
-import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.util.LongArg
-import ru.netology.nmedia.util.StringArg
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 
@@ -45,20 +39,12 @@ class PostFragment : Fragment() {
         val viewModel: PostViewModel by activityViewModels()
         //println("vm - $viewModel")
 
-        val binding =
-            FragmentPostBinding.inflate(layoutInflater, container, false)
+        val binding = FragmentPostBinding.inflate(layoutInflater, container, false)
 
         val id = requireArguments().longArg ?: 0L
 
-        viewModel.data.observe(viewLifecycleOwner) { posts ->
-            val post: Post? = posts.find { it.id == id }
-            if (post == null) {
-                findNavController().navigateUp()
-                return@observe
-            }
-        }
-
-        val adapter = PostsAdapter(object : OnIterationListener {
+        //val adapter = PostsAdapter(object : OnIterationListener {
+        val viewHolder = PostViewHolder(binding, object : OnIterationListener {
             override fun onLikeLtn(post: Post) {
                 viewModel.likeById(post.id)
             }
@@ -110,13 +96,17 @@ class PostFragment : Fragment() {
                     }
                 }
             }
-        })
+        })// val viewHolder
 
-        val heightPostView = binding.root.measuredHeight
-        val heightParentView = (DisplayMetrics().heightPixels * DisplayMetrics().density).toInt()
-        if (heightPostView > heightParentView) {
-            //scrolling script
+        viewModel.data.observe(viewLifecycleOwner) { posts ->
+            val post: Post? = posts.find { it.id == id }
+            if (post == null) {
+                findNavController().navigateUp()
+                return@observe
+            }
+            viewHolder.bind(post)
         }
+
         /*
         viewModel.data.observe(viewLifecycleOwner) { posts ->
             val hasNewPost: Boolean = adapter.currentList.size < posts.size

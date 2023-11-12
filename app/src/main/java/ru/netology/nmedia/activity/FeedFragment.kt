@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ScrollView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.NavHostFragment
@@ -30,8 +32,7 @@ class FeedFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val binding =
-            FragmentFeedBinding.inflate(layoutInflater, container, false)
+        val binding = FragmentFeedBinding.inflate(layoutInflater, container, false)
 
         val viewModel: PostViewModel by activityViewModels()
         //println("vm - $viewModel")
@@ -110,5 +111,5 @@ class FeedFragment : Fragment() {
             }
         }
         return binding.root
-    }
+    }//onCreateView
 }
