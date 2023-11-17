@@ -4,4 +4,16 @@
     <string name="helloText">Привет, пользователь!</string>
     <string name="descriptionPostAuthorAvatar">Аватар автора поста</string>
     <string name="menu_description">Пост меню</string>
+    <string name="remove">Удалить</string>
+    <string name="post_text">Введите текст поста</string>
+    <string name="empty_content">Текст пустой.</string>
+    <string name="editInMenu">Редактировать</string>
+    <string name="editBarTitle">Редактирование...</string>
+    <string name="cancell_button_description">Отмена редактирования</string>
+    <string name="save_button_description">Сохранение</string>
+    <string name="share_post">Распространить пост</string>
+    <string name="chooser_share_post">Куда распространить?</string>
+    <string name="empty_text_error">Пустой текст</string>
+    <string name="video_play_error">Нет приложения для проигрывания видео</string>
+    <string name="cancel_post_text">Отменить пост</string>
 </resources>

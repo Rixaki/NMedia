@@ -3,4 +3,16 @@
     <string name="helloText">Hello, User!</string>
     <string name="descriptionPostAuthorAvatar">Post author avatar</string>
     <string name="menu_description">Post menu</string>
+    <string name="remove">Remove</string>
+    <string name="post_text">Post text</string>
+    <string name="empty_content">Text is empty.</string>
+    <string name="editInMenu">Edit</string>
+    <string name="editBarTitle">Editing...</string>
+    <string name="cancell_button_description">Cancell button</string>
+    <string name="save_button_description">Save button</string>
+    <string name="share_post">Share post</string>
+    <string name="chooser_share_post">Where to share?</string>
+    <string name="empty_text_error">Empty text</string>
+    <string name="video_play_error">There is not youtube-app</string>
+    <string name="cancel_post_text">Cancel post</string>
 </resources>
