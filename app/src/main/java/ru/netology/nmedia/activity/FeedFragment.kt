@@ -21,11 +21,21 @@ import ru.netology.nmedia.adapter.OnIterationListener
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.util.StringArg
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 
 //class MainActivity : AppCompatActivity() {
 class FeedFragment : Fragment() {
+
+    /*
+    companion object {
+        var Bundle.textArg: String? by StringArg
+        //"by StringArg" instead of:
+        //get() = getString(KEY_TEXT)
+        //set(value)= putString(KEY_TEXT, value)
+    }
+    */
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -110,6 +120,7 @@ class FeedFragment : Fragment() {
                 }
             }
         }
+
         return binding.root
     }//onCreateView
 }

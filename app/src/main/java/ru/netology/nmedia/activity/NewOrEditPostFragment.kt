@@ -4,9 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentNewOrEditPostBinding
 import ru.netology.nmedia.util.StringArg
 import ru.netology.nmedia.viewmodel.PostViewModel
@@ -49,6 +51,9 @@ class NewOrEditPostFragment() : Fragment() {
         }
          */
         binding.content.setText(arguments?.textArg.orEmpty())
+        if (arguments?.textArg.isNullOrEmpty()){
+            binding.content.setText(savedInstanceState?.getString("textArg"))
+        }
         binding.content.requestFocus()
 
         binding.save.setOnClickListener {
@@ -69,6 +74,37 @@ class NewOrEditPostFragment() : Fragment() {
             //finish()
             findNavController().navigateUp()//instead of finish(), make removing to 1 activity back
         }
+
+        val callback = requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object: OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    //saving text from cancelled adding post
+                    println("handleOnBackPressed")
+                    println("textarg be4 bundle - ${arguments?.textArg}")
+                    println("for writing in bundle - ${binding.content.text}")
+                    Bundle().apply {
+                        textArg = binding.content.text.toString()
+                        println("in bundle")
+                    }
+                    /*
+                    findNavController().navigate(R.id.action_newOrEditPostFragment_to_feedFragment, Bundle().apply {
+                        textArg = binding.content.text.toString()
+                        println("in bundle")
+                    })
+                    */
+
+                    println("textarg after bundle - ${arguments?.textArg}")
+                    //findNavController().navigateUp()
+
+                    // if you want onBackPressed() to be called as normal afterwards
+                    if (isEnabled) {
+                        isEnabled = false
+                        //requireActivity().onBackPressed()//in original with deprecates
+                        requireActivity().onBackPressedDispatcher
+                    }
+                }
+            })
 
         return binding.root
     }

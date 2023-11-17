@@ -28,7 +28,11 @@
         android:id="@+id/newOrEditPostFragment"
         android:name="ru.netology.nmedia.activity.NewOrEditPostFragment"
         android:label="fragment_new_or_edit_post"
-        tools:layout="@layout/fragment_new_or_edit_post" />
+        tools:layout="@layout/fragment_new_or_edit_post" >
+        <action
+            android:id="@+id/action_newOrEditPostFragment_to_feedFragment"
+            app:destination="@id/feedFragment" />
+    </fragment>
     <fragment
         android:id="@+id/postFragment"
         android:name="ru.netology.nmedia.activity.PostFragment"
