@@ -25,11 +25,14 @@ private val empty = Post(
 class PostViewModel(application: Application): AndroidViewModel(application) {
     //application extends context!!!
     //private val repository: PostRepository = PostRepoInMemImpl()
-    //private val repository: PostRepository = PostRepoSharedPrefsImpl(application)
+    private val repository: PostRepository = PostRepoSharedPrefsImpl(application)
     //private val repository: PostRepository = PostRepoFilesImpl(application)
+    /*
     private val repository: PostRepository = PostRepoSQLiteImpl(
         AppDb.getInstance(application).postDao
     )
+    */
+
     val data = repository.getAll()
     val edited = MutableLiveData(empty)
 

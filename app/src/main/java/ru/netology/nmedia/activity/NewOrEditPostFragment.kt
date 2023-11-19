@@ -79,23 +79,10 @@ class NewOrEditPostFragment() : Fragment() {
             viewLifecycleOwner,
             object: OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    //saving text from cancelled adding post
-                    println("handleOnBackPressed")
-                    println("textarg be4 bundle - ${arguments?.textArg}")
-                    println("for writing in bundle - ${binding.content.text}")
-                    Bundle().apply {
-                        textArg = binding.content.text.toString()
-                        println("in bundle")
-                    }
-                    /*
                     findNavController().navigate(R.id.action_newOrEditPostFragment_to_feedFragment, Bundle().apply {
                         textArg = binding.content.text.toString()
                         println("in bundle")
                     })
-                    */
-
-                    println("textarg after bundle - ${arguments?.textArg}")
-                    //findNavController().navigateUp()
 
                     // if you want onBackPressed() to be called as normal afterwards
                     if (isEnabled) {

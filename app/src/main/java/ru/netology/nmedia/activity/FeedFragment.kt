@@ -49,7 +49,9 @@ class FeedFragment : Fragment() {
 
         binding.newPostButton.setOnClickListener {
             //newPostContract.launch(null)
-            findNavController().navigate(R.id.action_feedFragment_to_newOrEditPostFragment)
+            findNavController().navigate(R.id.action_feedFragment_to_newOrEditPostFragment, Bundle().apply {
+                textArg = arguments?.textArg
+            })
         }
 
         val adapter = PostsAdapter(object : OnIterationListener {
