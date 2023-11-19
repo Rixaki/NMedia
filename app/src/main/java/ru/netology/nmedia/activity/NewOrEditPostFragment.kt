@@ -66,7 +66,9 @@ class NewOrEditPostFragment() : Fragment() {
                 //setResult(RESULT_OK, Intent().putExtra(Intent.EXTRA_TEXT, text))
             }
             //finish()
-            findNavController().navigateUp()//instead of finish(), make removing to 1 activity back
+            findNavController().navigate(R.id.action_newOrEditPostFragment_to_feedFragment, Bundle().apply {
+                textArg = null
+            })//instead of finish(), make removing to 1 activity back
         }
 
         binding.cancelButton.setOnClickListener {
