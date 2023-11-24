@@ -16,4 +16,14 @@
     <string name="empty_text_error">Пустой текст</string>
     <string name="video_play_error">Нет приложения для проигрывания видео</string>
     <string name="cancel_post_text">Отменить пост</string>
+    <string name="google_play_unavailable">Сервисы Google Play, необходимые для работы приложения Нмедия, не поддерживаются вашим устройством. Приложение работать не будет(</string>
+    <string name="notification_user_liked">Пользователь %1$s лайкнул(а) пост автора %2$s</string>
+    <string name="channel_remote_name">Уведомление сервера</string>
+    <string name="channel_remote_description">Уведомление удаленного сервера</string>
+    <string name="notification_new_post">У пользователя %1$s новый пост</string>
+    <string name="notification_new_post_full_form">У пользователя %1$s новый пост
+        \n
+        %2$s
+    </string>
+    <string name="notification_undefined">Нажмите, чтобы узнать, что интересного есть для вас.</string>
 </resources>

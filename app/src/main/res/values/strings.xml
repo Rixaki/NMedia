@@ -15,4 +15,14 @@
     <string name="empty_text_error">Empty text</string>
     <string name="video_play_error">There is not youtube-app</string>
     <string name="cancel_post_text">Cancel post</string>
+    <string name="google_play_unavailable">"NMedia will not run without Google Play Services, which are not supported by your device. "</string>
+    <string name="channel_remote_name">Server notifications</string>
+    <string name="channel_remote_description">Notifications from remote server</string>
+    <string name="notification_user_liked">User %1$s liked %2$s\'s post</string>
+    <string name="notification_new_post">User %1$s published new post</string>
+    <string name="notification_new_post_full_form">User %1$s published new post
+        \n\n
+        %2$s
+    </string>
+    <string name="notification_undefined">Tap, to check: Is there anything interesting for you? </string>
 </resources>
