@@ -44,4 +44,5 @@ out/
 !**/src/main/**
 !**/src/test/**
 testsecret.txt
-testsecret.txt
+google-service.json
+/build
