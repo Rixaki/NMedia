@@ -43,3 +43,5 @@ out/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**
 !**/src/test/**
+testsecret.txt
+testsecret.txt
