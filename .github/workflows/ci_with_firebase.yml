@@ -20,11 +20,15 @@ jobs:
           java-version: 18
           distribution: 'adopt'
 
+      - name: Decode google-services.json
+        env:
+          FIREBASE_SECRET: ${{ secrets.FIREBASE_SECRET }}
+        run: echo $FIREBASE_SECRET > ./app/google-services.json
+
       - name: Build
         run: |
           chmod +x ./gradlew
           ./gradlew build
-
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v3
         with:
