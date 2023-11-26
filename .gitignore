@@ -44,5 +44,6 @@ out/
 !**/src/main/**
 !**/src/test/**
 testsecret.txt
-google-service.json
+google-services.json
 /build
+/git-filter-repo

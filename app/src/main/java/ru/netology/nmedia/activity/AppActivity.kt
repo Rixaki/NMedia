@@ -24,10 +24,10 @@ class AppActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        requestNotificationsPermission()
+
         val binding = ActivityAppBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        if (intent.action != Intent.ACTION_SEND) return
 
         val text = intent.getStringExtra(Intent.EXTRA_TEXT)
         
@@ -61,15 +61,13 @@ class AppActivity : AppCompatActivity() {
             //support manually add from https://developer.android.com/guide/navigation/get-started
             //to having a NavController in activity (frag.men-r of avt-ty)
             val navHostFragment =
-                supportFragmentManager.findFragmentById(androidx.navigation.fragment.R.id.nav_host_fragment_container) as NavHostFragment
+                supportFragmentManager.findFragmentById(R.id.my_nav_host_fragment) as NavHostFragment
             val navController = navHostFragment.navController
 
             navController.navigate(R.id.action_feedFragment_to_newOrEditPostFragment, Bundle().apply{
                     textArg = text
                 })
         }
-
-        requestNotificationsPermission()
     }
 
     private fun requestNotificationsPermission() {
