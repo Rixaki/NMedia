@@ -1,7 +1,5 @@
 package ru.netology.nmedia.dto
 
-import ru.netology.nmedia.entity.PostEntity
-
 data class Post(
     val id: Long,
     val author: String,

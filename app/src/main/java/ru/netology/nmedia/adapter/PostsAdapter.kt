@@ -66,7 +66,7 @@ class PostsAdapter(
 }
 
 class PostViewHolder(
-   //private val binding: FragmentPostInScrollviewBinding,
+    //private val binding: FragmentPostInScrollviewBinding,
     private val binding: FragmentPostBinding,
     private val onIterationListener: OnIterationListener
 ) : RecyclerView.ViewHolder(binding.root) {
@@ -83,13 +83,14 @@ class PostViewHolder(
             viewIv.text = countToString(12)
 
             likeIv.setOnClickListener {
-                onIterationListener.onLikeLtn(post)
                 likeIv.isChecked = !post.likedByMe
+                likeIv.text = countToString(post.likes + (if (post.likedByMe) -1 else 1))
+                onIterationListener.onLikeLtn(post)
             }
 
             shareIv.setOnClickListener {
                 onIterationListener.onShareLtn(post)
-                }
+            }
 
             videoWallpaper.setOnClickListener {
                 onIterationListener.onPlayVideoLtn(post)
@@ -132,20 +133,21 @@ class PostViewHolder(
         }//with binding
     }
 
-        /*
-        likeIv.setOnClickListener {
-            onIterationListener.onLikeLtn(post)
-            if (!post.likedByMe) {
-                //likeCount.setTextColor(0xFF0000FF.toInt())
-                GlobalScope.launch {
-                    delay(1500) // In ms
-                    //Code after sleep
-                    //likeCount.setTextColor(0xFF777777.toInt())
-                }
+    /*
+    likeIv.setOnClickListener {
+        onIterationListener.onLikeLtn(post)
+        if (!post.likedByMe) {
+            //likeCount.setTextColor(0xFF0000FF.toInt())
+            GlobalScope.launch {
+                delay(1500) // In ms
+                //Code after sleep
+                //likeCount.setTextColor(0xFF777777.toInt())
             }
         }
-        */
+    }
+    */
 }
+
 object PostDiffCallBack :
     DiffUtil.ItemCallback<Post>() { //object without data better that class without data
     override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean =

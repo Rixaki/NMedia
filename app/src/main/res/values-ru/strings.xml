@@ -26,4 +26,8 @@
         %2$s
     </string>
     <string name="notification_undefined">Нажмите, чтобы узнать, что интересного есть для вас.</string>
+    <string name="smth_went_wrong">Что-то пошло не так</string>
+    <string name="retry">Повторить</string>
+    <string name="no_posts">Постов нет</string>
+    <string name="new_post">Новый пост</string>
 </resources>

@@ -1,7 +1,6 @@
 package ru.netology.nmedia.service
 
 import android.Manifest
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -17,7 +16,6 @@ import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.AppActivity
-import java.lang.IllegalArgumentException
 import kotlin.random.Random
 
 class FCMService : FirebaseMessagingService() {
@@ -33,22 +31,46 @@ class FCMService : FirebaseMessagingService() {
             val name = getString(R.string.channel_remote_name)
             val descriptionText = getString(R.string.channel_remote_description)
             val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel(channelId, name, importance).apply {
-                description = descriptionText
-                setSound(null, null)//may un-stable work with IMPORTANCE_DEFAULT
-            }
-            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val channel =
+                NotificationChannel(channelId, name, importance).apply {
+                    description = descriptionText
+                    setSound(
+                        null,
+                        null
+                    )//may un-stable work with IMPORTANCE_DEFAULT
+                }
+            val manager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.createNotificationChannel(channel)
         }
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
-        message.data[action]?.let{
+        message.data[action]?.let {
             when (Actions.createValue(it)) {
-            //when (Actions.valueOf(it)) {
-                Actions.LIKE -> handleLike(gson.fromJson(message.data[content], Like::class.java))
-                Actions.NEW_POST -> handleNewPost(gson.fromJson(message.data[content], NewPost::class.java))
-                else -> {handleUndefined(gson.fromJson(message.data[content], Dummy::class.java))}
+                //when (Actions.valueOf(it)) {
+                Actions.LIKE -> handleLike(
+                    gson.fromJson(
+                        message.data[content],
+                        Like::class.java
+                    )
+                )
+
+                Actions.NEW_POST -> handleNewPost(
+                    gson.fromJson(
+                        message.data[content],
+                        NewPost::class.java
+                    )
+                )
+
+                else -> {
+                    handleUndefined(
+                        gson.fromJson(
+                            message.data[content],
+                            Dummy::class.java
+                        )
+                    )
+                }
             }
         }
     }
@@ -59,19 +81,27 @@ class FCMService : FirebaseMessagingService() {
             this,
             0,
             intent,
-            PendingIntent.FLAG_IMMUTABLE)
+            PendingIntent.FLAG_IMMUTABLE
+        )
 
         val notification = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.ic_netology_bw_48)
-            .setContentText(getString(
-                R.string.notification_user_liked,
-                like.userName,
-                like.postAuthor))
+            .setContentText(
+                getString(
+                    R.string.notification_user_liked,
+                    like.userName,
+                    like.postAuthor
+                )
+            )
             .setContentIntent(pi)
             .setAutoCancel(true)
             .build()
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
             NotificationManagerCompat.from(this).notify(
                 Random.nextInt(100_000),
                 notification
@@ -79,28 +109,41 @@ class FCMService : FirebaseMessagingService() {
         }
     }
 
-    private fun handleNewPost(post: NewPost){
+    private fun handleNewPost(post: NewPost) {
         val intent: Intent = Intent(this, AppActivity::class.java)
         val pi: PendingIntent = PendingIntent.getActivity(
             this,
             0,
             intent,
-            PendingIntent.FLAG_IMMUTABLE)
+            PendingIntent.FLAG_IMMUTABLE
+        )
 
         val notification = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.ic_netology_bw_48)
-            .setContentText(getString(
-                R.string.notification_new_post,
-                post.postAuthor))
-            .setStyle(NotificationCompat.BigTextStyle().bigText(getString(
-                R.string.notification_new_post_full_form,
-                post.postAuthor,
-                post.content)))
+            .setContentText(
+                getString(
+                    R.string.notification_new_post,
+                    post.postAuthor
+                )
+            )
+            .setStyle(
+                NotificationCompat.BigTextStyle().bigText(
+                    getString(
+                        R.string.notification_new_post_full_form,
+                        post.postAuthor,
+                        post.content
+                    )
+                )
+            )
             .setContentIntent(pi)
             .setAutoCancel(true)
             .build()
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
             NotificationManagerCompat.from(this).notify(
                 Random.nextInt(100_000),
                 notification
@@ -114,17 +157,25 @@ class FCMService : FirebaseMessagingService() {
             this,
             0,
             intent,
-            PendingIntent.FLAG_IMMUTABLE)
+            PendingIntent.FLAG_IMMUTABLE
+        )
 
         val notification = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.ic_netology_bw_48)
-            .setContentText(getString(
-                R.string.notification_undefined))
+            .setContentText(
+                getString(
+                    R.string.notification_undefined
+                )
+            )
             .setContentIntent(pi)
             .setAutoCancel(true)
             .build()
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
             NotificationManagerCompat.from(this).notify(
                 Random.nextInt(100_000),
                 notification

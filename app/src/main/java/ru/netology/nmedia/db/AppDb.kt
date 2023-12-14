@@ -1,8 +1,6 @@
 package ru.netology.nmedia.db
 
 import android.content.Context
-import android.database.sqlite.SQLiteDatabase
-import android.database.sqlite.SQLiteOpenHelper
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -23,10 +21,11 @@ abstract class AppDb : RoomDatabase() {
             }
         }
 
-        private fun buildDatabase(context: Context) = Room.databaseBuilder(context, AppDb::class.java, "appdb.db")
-            .fallbackToDestructiveMigration()
-            .allowMainThreadQueries()
-            .build()
+        private fun buildDatabase(context: Context) =
+            Room.databaseBuilder(context, AppDb::class.java, "appdb.db")
+                .fallbackToDestructiveMigration()
+                .allowMainThreadQueries()
+                .build()
     }
 }
 

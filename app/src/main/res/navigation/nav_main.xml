@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/feedFragment"
         android:name="ru.netology.nmedia.activity.FeedFragment"
-        android:label="FeedFragment" >
+        android:label="FeedFragment">
         <action
             android:id="@+id/action_feedFragment_to_newOrEditPostFragment"
             app:destination="@id/newOrEditPostFragment"
@@ -28,7 +28,7 @@
         android:id="@+id/newOrEditPostFragment"
         android:name="ru.netology.nmedia.activity.NewOrEditPostFragment"
         android:label="fragment_new_or_edit_post"
-        tools:layout="@layout/fragment_new_or_edit_post" >
+        tools:layout="@layout/fragment_new_or_edit_post">
         <action
             android:id="@+id/action_newOrEditPostFragment_to_feedFragment"
             app:destination="@id/feedFragment" />
@@ -36,7 +36,7 @@
     <fragment
         android:id="@+id/postFragment"
         android:name="ru.netology.nmedia.activity.PostFragment"
-        android:label="PostFragment" >
+        android:label="PostFragment">
         <action
             android:id="@+id/action_postFragment_to_newOrEditPostFragment"
             app:destination="@id/newOrEditPostFragment"

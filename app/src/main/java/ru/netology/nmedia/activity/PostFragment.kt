@@ -4,7 +4,6 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,7 +38,8 @@ class PostFragment : Fragment() {
         val viewModel: PostViewModel by activityViewModels()
         //println("vm - $viewModel")
 
-        val binding = FragmentPostBinding.inflate(layoutInflater, container, false)
+        val binding =
+            FragmentPostBinding.inflate(layoutInflater, container, false)
 
         val id = requireArguments().longArg ?: 0L
 
@@ -63,16 +63,18 @@ class PostFragment : Fragment() {
                     intent,
                     null
                 )//ACTION_SEND have not optional title
-                viewModel.shareById(post.id)
+                //viewModel.shareById(post.id)
                 startActivity(chooserIntent)
             }
 
             override fun onEditLtn(post: Post) {
                 viewModel.edit(post)
                 //editPostContract.launch(post.content)
-                findNavController().navigate(R.id.action_postFragment_to_newOrEditPostFragment, Bundle().apply {
-                    textArg = post.content
-                })
+                findNavController().navigate(
+                    R.id.action_postFragment_to_newOrEditPostFragment,
+                    Bundle().apply {
+                        textArg = post.content
+                    })
             }
 
             override fun onRemoveLtn(post: Post) {
@@ -98,12 +100,11 @@ class PostFragment : Fragment() {
             }
         })// val viewHolder
 
-        viewModel.data.observe(viewLifecycleOwner) { posts ->
-            val post: Post? = posts.find { it.id == id }
-            if (post == null) {
-                findNavController().navigateUp()
-                return@observe
-            }
+        val posts = viewModel.currentState.value?.posts
+        val post: Post? = posts?.find { it.id == id }
+        if (post == null) {
+            findNavController().navigateUp()
+        } else {
             viewHolder.bind(post)
         }
 

@@ -4,12 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentNewOrEditPostBinding
+import ru.netology.nmedia.util.AndroidUtils
 import ru.netology.nmedia.util.StringArg
 import ru.netology.nmedia.viewmodel.PostViewModel
 
@@ -51,7 +50,7 @@ class NewOrEditPostFragment() : Fragment() {
         }
          */
         binding.content.setText(arguments?.textArg.orEmpty())
-        if (arguments?.textArg.isNullOrEmpty()){
+        if (arguments?.textArg.isNullOrEmpty()) {
             binding.content.setText(savedInstanceState?.getString("textArg"))
         }
         binding.content.requestFocus()
@@ -66,13 +65,22 @@ class NewOrEditPostFragment() : Fragment() {
                 //setResult(RESULT_OK, Intent().putExtra(Intent.EXTRA_TEXT, text))
             }
             //finish()
-            findNavController().navigateUp()//instead of finish(), make removing to 1 activity back
+            //findNavController().navigateUp()//instead of finish(), make removing to 1 activity back
         }
 
         binding.cancelButton.setOnClickListener {
-            //setResult(Activity.RESULT_CANCELED, Intent())
-            //finish()
-            findNavController().navigateUp()//instead of finish(), make removing to 1 activity back
+            viewModel.cancelEdit()
+        }
+
+        viewModel.postCreated.observe(viewLifecycleOwner) {
+            viewModel.load()
+            AndroidUtils.hideKeyBoard(requireView())
+            findNavController().navigateUp()
+        }
+
+        viewModel.postCanceled.observe(viewLifecycleOwner) {
+            AndroidUtils.hideKeyBoard(requireView())
+            findNavController().navigateUp()
         }
 
         return binding.root

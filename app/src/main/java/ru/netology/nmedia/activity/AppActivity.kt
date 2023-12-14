@@ -5,15 +5,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.view.MotionEvent
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_INDEFINITE
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.messaging.FirebaseMessaging
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewOrEditPostFragment.Companion.textArg
 import ru.netology.nmedia.databinding.ActivityAppBinding
@@ -30,10 +25,12 @@ class AppActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val text = intent.getStringExtra(Intent.EXTRA_TEXT)
-        
+
         if (text.isNullOrBlank()) {
-            Snackbar.make(binding.root,
-                getString(R.string.empty_text_error), Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(
+                binding.root,
+                getString(R.string.empty_text_error), Snackbar.LENGTH_SHORT
+            ).show()
             return
         }
 
@@ -64,7 +61,9 @@ class AppActivity : AppCompatActivity() {
                 supportFragmentManager.findFragmentById(R.id.my_nav_host_fragment) as NavHostFragment
             val navController = navHostFragment.navController
 
-            navController.navigate(R.id.action_feedFragment_to_newOrEditPostFragment, Bundle().apply{
+            navController.navigate(
+                R.id.action_feedFragment_to_newOrEditPostFragment,
+                Bundle().apply {
                     textArg = text
                 })
         }

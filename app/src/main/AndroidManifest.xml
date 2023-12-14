@@ -11,6 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.NMedia"
+        android:usesCleartextTraffic="${useClearTextTraffic}"
         tools:targetApi="31">
         <activity
             android:name=".activity.AppActivity"
@@ -20,7 +21,7 @@
 
                 <category android:name="android.intent.category.DEFAULT" />
 
-                <data android:mimeType="text/plain"/>
+                <data android:mimeType="text/plain" />
             </intent-filter>
 
             <intent-filter>
