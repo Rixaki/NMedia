@@ -40,6 +40,8 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     val postCanceled: LiveData<Unit>
         get() = privatePostCanceled
 
+    private var posts : List<Post> = emptyList()
+
     init {
         load()
     }
@@ -49,7 +51,20 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             //currentState.value = FeedState(loading = true)
             privateCurrentState.postValue(FeedState(loading = true))
             try {
-                val posts = repository.getAll()
+                posts = repository.getAll()
+                privateCurrentState.postValue(FeedState(posts = posts, empty = posts.isEmpty()))
+            } catch (e: Exception) {
+                privateCurrentState.postValue(FeedState(error = true))
+            }
+        }
+    }
+
+    fun loadOfPost (toLoadPost: Post) {
+        thread {
+            //currentState.value = FeedState(loading = true)
+            privateCurrentState.postValue(FeedState(loading = true))
+            try {
+                posts = posts.map { if (it.id != toLoadPost.id) it else toLoadPost}
                 privateCurrentState.postValue(FeedState(posts = posts, empty = posts.isEmpty()))
             } catch (e: Exception) {
                 privateCurrentState.postValue(FeedState(error = true))
@@ -85,16 +100,37 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun likeById(id: Long) {
-        thread {
-            repository.likeById(id)
-            load()
+        val post = posts.find{it.id == id}//antisticking before request answer (only with throw id, not post)
+        if (post?.likedByMe == false) {
+            thread {
+                loadOfPost(
+                    repository.likeById(id)//value+request in one
+                )
+            }
+            posts = posts.map{if (it.id == id) it.copy(likedByMe = true) else it}
+        }
+    }
+
+    fun like(post: Post) {//not working, sticking
+        if (!post.likedByMe) {
+            thread {
+                loadOfPost(
+                    repository.likeById(post.id)//value+request in one
+                )
+            }
+            posts = posts.map{if (it.id == post.id) it.copy(likedByMe = true) else it}
         }
     }
 
     fun unLikeById(id: Long) {
-        thread {
-            repository.unLikeById(id)
-            load()
+        val post = posts.find{it.id == id}//antisticking before request answer (only with throw id, not post)
+        if (post?.likedByMe == true) {
+            thread {
+                loadOfPost(
+                    repository.unLikeById(id)//value+request in one
+                )
+            }
+            posts = posts.map{if (it.id == id) it.copy(likedByMe = false) else it}
         }
     }
 

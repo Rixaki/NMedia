@@ -83,7 +83,7 @@ class PostViewHolder(
             viewIv.text = countToString(12)
 
             likeIv.setOnClickListener {
-                likeIv.isChecked = !post.likedByMe
+                //likeIv.isChecked = !post.likedByMe
                 likeIv.text = countToString(post.likes + (if (post.likedByMe) -1 else 1))
                 onIterationListener.onLikeLtn(post)
             }

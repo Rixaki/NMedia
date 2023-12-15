@@ -58,7 +58,7 @@ class PostRepoImpl() : PostRepository {
         val response = call.execute()
         val body = requireNotNull(response.body)
         val responceText = body.string()
-        //println(responceText)
+        println(responceText)
         return gson.fromJson(responceText, Post::class.java)
     }
 
@@ -72,7 +72,7 @@ class PostRepoImpl() : PostRepository {
         val response = call.execute()
         val body = requireNotNull(response.body)
         val responceText = body.string()
-        //println(responceText)
+        println(responceText)
         return gson.fromJson(responceText, Post::class.java)
     }
 

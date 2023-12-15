@@ -46,7 +46,11 @@ class PostFragment : Fragment() {
         //val adapter = PostsAdapter(object : OnIterationListener {
         val viewHolder = PostViewHolder(binding, object : OnIterationListener {
             override fun onLikeLtn(post: Post) {
-                viewModel.likeById(post.id)
+                if (post.likedByMe) {
+                    viewModel.unLikeById(post.id)
+                } else {
+                    viewModel.likeById(post.id)
+                }
             }
 
             override fun onShareLtn(post: Post) {
