@@ -47,46 +47,57 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun load() {
-        thread {
-            //currentState.value = FeedState(loading = true)
-            privateCurrentState.postValue(FeedState(loading = true))
-            try {
-                posts = repository.getAll()
-                privateCurrentState.postValue(FeedState(posts = posts, empty = posts.isEmpty()))
-            } catch (e: Exception) {
+        //start loading
+        privateCurrentState.postValue(FeedState(loading = true))
+
+        //thread{...}, thread in async method
+        repository.getAllAsync(object : PostRepository.Callback<List<Post>>{
+            override fun onSuccess(data: List<Post>) {
+                posts = data
+                privateCurrentState.postValue(FeedState(posts = data, empty = posts.isEmpty()))
+            }
+
+            override fun onError(throwable: Throwable) {
                 privateCurrentState.postValue(FeedState(error = true))
             }
-        }
+        })
     }
 
     fun loadOfPost (toLoadPost: Post) {
-        thread {
-            //currentState.value = FeedState(loading = true)
-            privateCurrentState.postValue(FeedState(loading = true))
-            try {
-                posts = posts.map { if (it.id != toLoadPost.id) it else toLoadPost}
-                privateCurrentState.postValue(FeedState(posts = posts, empty = posts.isEmpty()))
-            } catch (e: Exception) {
-                privateCurrentState.postValue(FeedState(error = true))
-            }
+        //currentState.value = FeedState(loading = true)
+        privateCurrentState.postValue(FeedState(loading = true))
+        try {
+            posts = posts.map { if (it.id != toLoadPost.id) it else toLoadPost}
+            privateCurrentState.postValue(FeedState(posts = posts, empty = posts.isEmpty()))
+        } catch (e: Exception) {
+            privateCurrentState.postValue(FeedState(error = true))
         }
     }
 
     fun changeContentAndSave(content: String) {
-        edited.value?.let { //it of post
+        edited.value?.let { editedPost -> //it of post
             val text = content.trim()
-            if (it.content == text) {
+            if (editedPost.content == text) {
                 return
             }
             edited.value = edited.value?.copy(content = text)
-            thread {
-                edited.value?.let { //it of post
-                    repository.save(it)//cntl+alt+b to fun code
-                    edited.postValue(empty)
-                    privatePostCreated.postValue(Unit)
-                }
-                load()
+            edited.value?.let { changedPost ->
+                repository.save(changedPost, object : PostRepository.Callback<Post>{
+                    override fun onSuccess(data: Post) {
+                        loadOfPost(data)
+                        privateCurrentState.postValue(FeedState(
+                                    posts = posts,
+                                    empty = posts.isEmpty()
+                                ))//not always shows new post without it
+                    }
+
+                    override fun onError(throwable: Throwable) {
+                        privateCurrentState.postValue(FeedState(error = true))
+                    }
+                })//save, cntl+alt+b to fun code
             }
+            edited.postValue(empty)
+            privatePostCreated.postValue(Unit)
         }
     }
 
@@ -102,38 +113,56 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     fun likeById(id: Long) {
         val post = posts.find{it.id == id}//antisticking before request answer (only with throw id, not post)
         if (post?.likedByMe == false) {
-            thread {
-                loadOfPost(
-                    repository.likeById(id)//value+request in one
-                )
-            }
-            posts = posts.map{if (it.id == id) it.copy(likedByMe = true) else it}
-        }
-    }
+            repository.likeById(id, object : PostRepository.Callback<Post>{
+                override fun onSuccess(data: Post) {
+                    loadOfPost(data)
+                }
 
-    fun like(post: Post) {//not working, sticking
-        if (!post.likedByMe) {
-            thread {
-                loadOfPost(
-                    repository.likeById(post.id)//value+request in one
-                )
-            }
-            posts = posts.map{if (it.id == post.id) it.copy(likedByMe = true) else it}
+                override fun onError(throwable: Throwable) {
+                    privateCurrentState.postValue(FeedState(error = true))
+                }
+            })
+            posts = posts.map{if (it.id == id) it.copy(likedByMe = true) else it}
         }
     }
 
     fun unLikeById(id: Long) {
         val post = posts.find{it.id == id}//antisticking before request answer (only with throw id, not post)
         if (post?.likedByMe == true) {
-            thread {
-                loadOfPost(
-                    repository.unLikeById(id)//value+request in one
-                )
-            }
+            repository.unLikeById(id, object : PostRepository.Callback<Post>{
+                override fun onSuccess(data: Post) {
+                    loadOfPost(data)
+                }
+
+                override fun onError(throwable: Throwable) {
+                    privateCurrentState.postValue(FeedState(error = true))
+                }
+            })
             posts = posts.map{if (it.id == id) it.copy(likedByMe = false) else it}
         }
     }
 
     //fun shareById(id: Long) = thread {repository.shareById(id)}
-    fun removeById(id: Long) = thread {repository.removeById(id)}
+    fun removeById(id: Long) {
+        thread {
+            val oldList = posts
+            posts = posts.filter { it.id != id }
+            privateCurrentState.postValue(
+                FeedState(
+                    posts = posts,
+                    empty = posts.isEmpty()
+                )
+            )
+            try {
+                repository.removeById(id)
+            } catch (e: Exception) {
+                privateCurrentState.postValue(
+                    FeedState(
+                        posts = oldList,
+                        error = true
+                    )
+                )
+            }
+        }
+    }
 }

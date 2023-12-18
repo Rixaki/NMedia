@@ -61,7 +61,6 @@ class FeedFragment : Fragment() {
                     viewModel.unLikeById(post.id)
                 } else {
                     viewModel.likeById(post.id)
-                    //viewModel.like(post)
                 }
             }
 
