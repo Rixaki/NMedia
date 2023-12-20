@@ -9,7 +9,6 @@ import ru.netology.nmedia.model.FeedState
 import ru.netology.nmedia.repository.PostRepoImpl
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.util.SingleLiveEvent
-import kotlin.concurrent.thread
 
 private val empty = Post(
     id = 0,
@@ -64,14 +63,15 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun loadOfPost (toLoadPost: Post) {
-        //currentState.value = FeedState(loading = true)
         privateCurrentState.postValue(FeedState(loading = true))
-        try {
-            posts = posts.map { if (it.id != toLoadPost.id) it else toLoadPost}
-            privateCurrentState.postValue(FeedState(posts = posts, empty = posts.isEmpty()))
-        } catch (e: Exception) {
-            privateCurrentState.postValue(FeedState(error = true))
+        if (!posts.map { it.id }.contains(toLoadPost.id)) { //newPost
+            posts += toLoadPost
+        } else { //editPost
+            posts = posts.map { if (it.id != toLoadPost.id) it else toLoadPost }
         }
+        privateCurrentState.postValue(FeedState(posts = posts, empty = posts.isEmpty()))//why FeedState.posts empty with non-empty posts?
+        println("size in feedstate - ${currentState.value?.posts?.size}")
+        println("size in posts(vm) - ${posts.size}")
     }
 
     fun changeContentAndSave(content: String) {
@@ -85,10 +85,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 repository.save(changedPost, object : PostRepository.Callback<Post>{
                     override fun onSuccess(data: Post) {
                         loadOfPost(data)
-                        privateCurrentState.postValue(FeedState(
-                                    posts = posts,
-                                    empty = posts.isEmpty()
-                                ))//not always shows new post without it
                     }
 
                     override fun onError(throwable: Throwable) {
@@ -144,25 +140,16 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     //fun shareById(id: Long) = thread {repository.shareById(id)}
     fun removeById(id: Long) {
-        thread {
-            val oldList = posts
-            posts = posts.filter { it.id != id }
-            privateCurrentState.postValue(
-                FeedState(
-                    posts = posts,
-                    empty = posts.isEmpty()
-                )
-            )
-            try {
-                repository.removeById(id)
-            } catch (e: Exception) {
-                privateCurrentState.postValue(
-                    FeedState(
-                        posts = oldList,
-                        error = true
-                    )
-                )
+        val oldList = posts
+        posts = posts.filter { it.id != id }
+        repository.removeById(id, object : PostRepository.Callback<Unit>{
+            override fun onSuccess(data: Unit) {
+                privateCurrentState.postValue(FeedState(posts = posts, empty = posts.isEmpty()))
             }
-        }
+
+            override fun onError(throwable: Throwable) {
+                privateCurrentState.postValue(FeedState(posts = oldList, error = true, empty = oldList.isEmpty()))
+            }
+        })
     }
 }

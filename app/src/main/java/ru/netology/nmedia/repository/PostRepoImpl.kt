@@ -177,14 +177,34 @@ class PostRepoImpl() : PostRepository {
 
     //override fun shareById(id: Long) {}
 
-    override fun removeById(id: Long) {
+    override fun removeById(id: Long, callback: PostRepository.Callback<Unit>) {
         val request: Request = Request.Builder()
             .delete()
             .url("${BASE_URL}/api/slow/posts/$id")
             .build()
 
         client.newCall(request)
-            .execute()
-            .close()
+            .enqueue(
+                object : Callback {
+                    override fun onFailure(call: Call, e: IOException) {
+                        callback.onError(e)
+                    }
+
+                    override fun onResponse(call: Call, response: Response) {
+                        val responseText = response.body?.string()
+
+                        if (responseText == null) {
+                            callback.onError(RuntimeException("body is null"))
+                            return
+                        }
+                        if (!response.isSuccessful) {
+                            callback.onError(RuntimeException("Responce code isn't 200-s"))
+                            return
+                        }
+
+                        callback.onSuccess(Unit)
+                    }
+                }
+            )
     }
 }
