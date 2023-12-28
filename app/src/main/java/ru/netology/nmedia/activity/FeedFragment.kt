@@ -127,9 +127,7 @@ class FeedFragment : Fragment() {
 
         viewModel.currentState.observe(viewLifecycleOwner) { state ->
             val hasNewPost: Boolean = adapter.currentList.size < state.sizeOfLoaded
-            println("${binding.list.size} bind----before---state ${state.posts.size}")
             adapter.submitList(state.posts)
-            println("${binding.list.size} bind---after----state ${state.posts.size}")
             binding.progress.isVisible = state.loading
             binding.errorGroup.isVisible = state.error
             binding.emptyText.isVisible = state.empty

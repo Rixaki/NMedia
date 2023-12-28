@@ -65,13 +65,11 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     fun loadOfPost (toLoadPost: Post) {
         privateCurrentState.postValue(FeedState(loading = true))
         if (!posts.map { it.id }.contains(toLoadPost.id)) { //newPost
-            posts += toLoadPost
+            posts = listOf(toLoadPost) + posts
         } else { //editPost
             posts = posts.map { if (it.id != toLoadPost.id) it else toLoadPost }
         }
-        privateCurrentState.postValue(FeedState(posts = posts, empty = posts.isEmpty()))//why FeedState.posts empty with non-empty posts?
-        println("size in feedstate - ${currentState.value?.posts?.size}")
-        println("size in posts(vm) - ${posts.size}")
+        privateCurrentState.postValue(FeedState(posts = posts, empty = posts.isEmpty()))
     }
 
     fun changeContentAndSave(content: String) {
@@ -85,15 +83,17 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 repository.save(changedPost, object : PostRepository.Callback<Post>{
                     override fun onSuccess(data: Post) {
                         loadOfPost(data)
+                        privatePostCreated.postValue(Unit)
                     }
 
                     override fun onError(throwable: Throwable) {
                         privateCurrentState.postValue(FeedState(error = true))
+                        privatePostCanceled.postValue(Unit)
                     }
                 })//save, cntl+alt+b to fun code
             }
             edited.postValue(empty)
-            privatePostCreated.postValue(Unit)
+            //privatePostCreated.postValue(Unit)
         }
     }
 

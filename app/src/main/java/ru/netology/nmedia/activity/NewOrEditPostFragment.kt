@@ -73,7 +73,7 @@ class NewOrEditPostFragment() : Fragment() {
         }
 
         viewModel.postCreated.observe(viewLifecycleOwner) {
-            viewModel.load()
+            //viewModel.load()
             AndroidUtils.hideKeyBoard(requireView())
             findNavController().navigateUp()
         }
