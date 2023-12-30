@@ -7,12 +7,10 @@ import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import ru.netology.nmedia.dto.Post
 import java.io.IOException
-import java.lang.RuntimeException
 import java.util.concurrent.TimeUnit
 
 
@@ -45,14 +43,19 @@ class PostRepoImpl() : PostRepository {
                     override fun onResponse(call: Call, response: Response) {
                         val responseText = response.body?.string()
 
-                        if(responseText == null) {
+                        if (responseText == null) {
                             callback.onError(RuntimeException("body is null"))
                             return
                         }
 
                         try {//maybe unexpected type of json-responce
-                            callback.onSuccess(gson.fromJson(responseText, listPostType))
-                        } catch (e : Exception) {
+                            callback.onSuccess(
+                                gson.fromJson(
+                                    responseText,
+                                    listPostType
+                                )
+                            )
+                        } catch (e: Exception) {
                             callback.onError(e)
                         }
                     }
@@ -66,6 +69,8 @@ class PostRepoImpl() : PostRepository {
             .post(gson.toJson(post).toRequestBody(jsonType))
             .build()
 
+        println(gson.toJson(post))
+
         return client.newCall(request)
             //.execute()
             .enqueue(
@@ -77,14 +82,19 @@ class PostRepoImpl() : PostRepository {
                     override fun onResponse(call: Call, response: Response) {
                         val responseText = response.body?.string()
 
-                        if(responseText == null) {
+                        if (responseText == null) {
                             callback.onError(RuntimeException("body is null"))
                             return
                         }
 
                         try {//maybe unexpected type of json-responce
-                            callback.onSuccess(gson.fromJson(responseText, postType))
-                        } catch (e : Exception) {
+                            callback.onSuccess(
+                                gson.fromJson(
+                                    responseText,
+                                    postType
+                                )
+                            )
+                        } catch (e: Exception) {
                             callback.onError(e)
                         }
                     }
@@ -116,14 +126,19 @@ class PostRepoImpl() : PostRepository {
                     override fun onResponse(call: Call, response: Response) {
                         val responseText = response.body?.string()
 
-                        if(responseText == null) {
+                        if (responseText == null) {
                             callback.onError(RuntimeException("body is null"))
                             return
                         }
 
                         try {//maybe unexpected type of json-responce
-                            callback.onSuccess(gson.fromJson(responseText, postType))
-                        } catch (e : Exception) {
+                            callback.onSuccess(
+                                gson.fromJson(
+                                    responseText,
+                                    postType
+                                )
+                            )
+                        } catch (e: Exception) {
                             callback.onError(e)
                         }
                     }
@@ -154,14 +169,19 @@ class PostRepoImpl() : PostRepository {
                     override fun onResponse(call: Call, response: Response) {
                         val responseText = response.body?.string()
 
-                        if(responseText == null) {
+                        if (responseText == null) {
                             callback.onError(RuntimeException("body is null"))
                             return
                         }
 
                         try {//maybe unexpected type of json-responce
-                            callback.onSuccess(gson.fromJson(responseText, postType))
-                        } catch (e : Exception) {
+                            callback.onSuccess(
+                                gson.fromJson(
+                                    responseText,
+                                    postType
+                                )
+                            )
+                        } catch (e: Exception) {
                             callback.onError(e)
                         }
                     }

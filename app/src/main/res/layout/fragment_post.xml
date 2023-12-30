@@ -144,6 +144,19 @@
             app:layout_constraintTop_toBottomOf="@id/barrierPostContentBottom" />
 
         <ImageView
+            android:id="@+id/attachmentIv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/defaultMargin"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cardContent"
+            app:srcCompat="@drawable/baseline_downloading_48" />
+
+        <ImageView
             android:id="@+id/videoWallpaper"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -152,7 +165,7 @@
             android:minHeight="100dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cardContent"
+            app:layout_constraintTop_toBottomOf="@+id/attachmentIv"
             app:srcCompat="@mipmap/ic_banner" />
 
         <ImageView

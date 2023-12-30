@@ -8,16 +8,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
-import androidx.core.view.size
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
-import okhttp3.internal.wait
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewOrEditPostFragment.Companion.textArg
 import ru.netology.nmedia.activity.PostFragment.Companion.longArg
@@ -126,7 +120,8 @@ class FeedFragment : Fragment() {
         binding.list.adapter = adapter
 
         viewModel.currentState.observe(viewLifecycleOwner) { state ->
-            val hasNewPost: Boolean = adapter.currentList.size < state.sizeOfLoaded
+            val hasNewPost: Boolean =
+                adapter.currentList.size < state.sizeOfLoaded
             adapter.submitList(state.posts)
             binding.progress.isVisible = state.loading
             binding.errorGroup.isVisible = state.error
@@ -137,7 +132,7 @@ class FeedFragment : Fragment() {
             }
         }
 
-        binding.retry.setOnClickListener{
+        binding.retry.setOnClickListener {
             viewModel.load()
         }
 
