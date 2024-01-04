@@ -43,7 +43,6 @@ class FeedFragment : Fragment() {
             FragmentFeedBinding.inflate(layoutInflater, container, false)
 
         val viewModel: PostViewModel by activityViewModels()
-        //println("vm - $viewModel")
 
         binding.newPostButton.setOnClickListener {
             //newPostContract.launch(null)

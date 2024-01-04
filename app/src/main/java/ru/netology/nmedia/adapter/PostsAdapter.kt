@@ -1,18 +1,15 @@
 package ru.netology.nmedia.adapter
 
-import android.app.Activity
-import android.util.DisplayMetrics
+import android.app.ActionBar.LayoutParams
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.request.RequestOptions
 import ru.netology.nmedia.R
-import ru.netology.nmedia.activity.AppActivity
 import ru.netology.nmedia.databinding.FragmentPostBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.funcs.countToString
@@ -84,7 +81,7 @@ class PostViewHolder(
 
             val baseAvaUrl = "http://10.0.2.2:9999/avatars/"
             avatar.load(
-                url = baseAvaUrl+post.authorAvatar,
+                url = baseAvaUrl + post.authorAvatar,
                 placeholderIndex = R.drawable.baseline_account_circle_48,
                 options = RequestOptions().circleCrop()
             )
@@ -110,14 +107,21 @@ class PostViewHolder(
                 val baseAttUrl = "http://10.0.2.2:9999/images/"
                 attachmentIv.visibility = View.VISIBLE
 
+                //for avaliable to change layoutparams(?)
                 attachmentIv.requestLayout()
+                
+                //attachmentIv's start layoutparams are small and
+                // iv.load will get low-quality(small) image
+                with(attachmentIv.layoutParams) {
+                    width = LayoutParams.MATCH_PARENT
+                    height = 300
+                }
 
-                attachmentIv.layoutParams.width = ConstraintLayout.LayoutParams.MATCH_PARENT
-                attachmentIv.layoutParams.height = 500//???comparison with display sizes/densities
-                with (post.attachment) {
+                with(post.attachment) {
                     attachmentIv.load(
                         url = baseAttUrl + this.url,
-                        options = RequestOptions().fitCenter()
+                        options = RequestOptions().fitCenter(),
+                        toFullWidth = true
                     )
                     attachmentIv.contentDescription = this.description
                 }
