@@ -109,12 +109,19 @@ class PostViewHolder(
 
                 //for avaliable to change layoutparams(?)
                 attachmentIv.requestLayout()
-                
+
                 //attachmentIv's start layoutparams are small and
                 // iv.load will get low-quality(small) image
+
+                val displayMetrics = attachmentIv.resources.displayMetrics
+                val screenHeight =
+                    (displayMetrics.heightPixels.toFloat() / displayMetrics.density).toInt()
+                val attachmentIvHeight =
+                    if (screenHeight > 300) 300 else screenHeight
+
                 with(attachmentIv.layoutParams) {
                     width = LayoutParams.MATCH_PARENT
-                    height = 300
+                    height = attachmentIvHeight
                 }
 
                 with(post.attachment) {

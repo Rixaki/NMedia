@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -23,6 +24,7 @@ import ru.netology.nmedia.viewmodel.PostViewModel
 
 
 //class MainActivity : AppCompatActivity() {
+
 class FeedFragment : Fragment() {
 
     /*
@@ -123,7 +125,22 @@ class FeedFragment : Fragment() {
                 adapter.currentList.size < state.sizeOfLoaded
             adapter.submitList(state.posts)
             binding.progress.isVisible = state.loading
-            binding.errorGroup.isVisible = state.error
+            //binding.errorGroup.isVisible = state.error
+            if (state.error) {
+                val snackbar = Snackbar.make(
+                    binding.root,
+                    getString(R.string.error_bar_start_text) + state.lastErrorAction,
+                    10_000//milliseconds
+                )
+                val snackbarTextView =
+                    snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+                snackbarTextView.setMaxLines(3);  // show multiple line
+                snackbar
+                    .setAction("OK") {
+                        snackbar.dismiss()
+                    }
+                    .show()
+            }
             binding.emptyText.isVisible = state.empty
             binding.swiperefresh.isRefreshing = state.loading
             if (hasNewPost) {
@@ -131,9 +148,11 @@ class FeedFragment : Fragment() {
             }
         }
 
+        /*
         binding.retry.setOnClickListener {
             viewModel.load()
         }
+         */
 
         binding.swiperefresh.setOnRefreshListener {
             viewModel.load()

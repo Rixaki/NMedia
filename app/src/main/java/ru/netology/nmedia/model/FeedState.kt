@@ -7,5 +7,6 @@ data class FeedState(
     val loading: Boolean = false,
     val error: Boolean = false,
     val empty: Boolean = false,
-    val sizeOfLoaded: Int = 0
+    val sizeOfLoaded: Int = 0,
+    val lastErrorAction: String = "Api errors were not detected."
 )

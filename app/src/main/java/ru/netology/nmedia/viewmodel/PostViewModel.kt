@@ -40,6 +40,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         get() = privatePostCanceled
 
     private var posts: List<Post> = emptyList()
+    private var oldPosts: List<Post> = emptyList()
 
     init {
         load()
@@ -47,39 +48,43 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     fun load() {
         //start loading
-        privateCurrentState.postValue(FeedState(loading = true))
+        privateCurrentState.value = (FeedState(loading = true))
 
         //thread{...}, thread in async method
         repository.getAllAsync(object : PostRepository.Callback<List<Post>> {
             override fun onSuccess(data: List<Post>) {
                 posts = data
-                privateCurrentState.postValue(
-                    FeedState(
-                        posts = data,
-                        empty = posts.isEmpty()
-                    )
-                )
+                oldPosts = data
+                privateCurrentState.value = (
+                        FeedState(
+                            posts = data,
+                            empty = posts.isEmpty()
+                        )
+                        )
             }
 
             override fun onError(throwable: Throwable) {
-                privateCurrentState.postValue(FeedState(error = true))
+                privateCurrentState.value = (FeedState(
+                    posts = oldPosts, error = true,
+                    lastErrorAction = "Error with list post load."
+                ))
             }
         })
     }
 
     fun loadOfPost(toLoadPost: Post) {
-        privateCurrentState.postValue(FeedState(loading = true))
+        privateCurrentState.value = (FeedState(loading = true))
         if (!posts.map { it.id }.contains(toLoadPost.id)) { //newPost
             posts = listOf(toLoadPost) + posts
         } else { //editPost
             posts = posts.map { if (it.id != toLoadPost.id) it else toLoadPost }
         }
-        privateCurrentState.postValue(
-            FeedState(
-                posts = posts,
-                empty = posts.isEmpty()
-            )
-        )
+        privateCurrentState.value = (
+                FeedState(
+                    posts = posts,
+                    empty = posts.isEmpty()
+                )
+                )
     }
 
     fun changeContentAndSave(content: String) {
@@ -99,7 +104,12 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                         }
 
                         override fun onError(throwable: Throwable) {
-                            privateCurrentState.postValue(FeedState(error = true))
+                            privateCurrentState.value =
+                                (FeedState(
+                                    posts = oldPosts,
+                                    error = true,
+                                    lastErrorAction = "Error with save/edit post."
+                                ))
                             privatePostCanceled.postValue(Unit)
                         }
                     })//save, cntl+alt+b to fun code
@@ -128,7 +138,11 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 }
 
                 override fun onError(throwable: Throwable) {
-                    privateCurrentState.postValue(FeedState(error = true))
+                    privateCurrentState.value = (FeedState(
+                        posts = oldPosts,
+                        error = true,
+                        lastErrorAction = "Error with liking post."
+                    ))
                 }
             })
             posts =
@@ -146,7 +160,11 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 }
 
                 override fun onError(throwable: Throwable) {
-                    privateCurrentState.postValue(FeedState(error = true))
+                    privateCurrentState.value = (FeedState(
+                        posts = oldPosts,
+                        error = true,
+                        lastErrorAction = "Error with unliking post."
+                    ))
                 }
             })
             posts =
@@ -160,22 +178,23 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         posts = posts.filter { it.id != id }
         repository.removeById(id, object : PostRepository.Callback<Unit> {
             override fun onSuccess(data: Unit) {
-                privateCurrentState.postValue(
-                    FeedState(
-                        posts = posts,
-                        empty = posts.isEmpty()
-                    )
-                )
+                privateCurrentState.value = (
+                        FeedState(
+                            posts = posts,
+                            empty = posts.isEmpty()
+                        )
+                        )
             }
 
             override fun onError(throwable: Throwable) {
-                privateCurrentState.postValue(
-                    FeedState(
-                        posts = oldList,
-                        error = true,
-                        empty = oldList.isEmpty()
-                    )
-                )
+                privateCurrentState.value = (
+                        FeedState(
+                            posts = oldList,
+                            error = true,
+                            empty = oldList.isEmpty(),
+                            lastErrorAction = "Error with delete post."
+                        )
+                        )
             }
         })
     }
