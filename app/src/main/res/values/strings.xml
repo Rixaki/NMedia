@@ -25,4 +25,9 @@
         %2$s
     </string>
     <string name="notification_undefined">Tap, to check: Is there anything interesting for you? </string>
+    <string name="smth_went_wrong">Smth went wrong</string>
+    <string name="retry">Retry</string>
+    <string name="no_posts">No posts</string>
+    <string name="new_post">New post</string>
+    <string name="error_bar_start_text">"Action was NOT performed. Swipe from top to bottom to try to refresh the page. Error code - "</string>
 </resources>

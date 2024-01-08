@@ -2,47 +2,120 @@ package ru.netology.nmedia.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.repository.PostRepoFilesImpl
-import ru.netology.nmedia.repository.PostRepoInMemImpl
-import ru.netology.nmedia.repository.PostRepoSQLiteImpl
-import ru.netology.nmedia.repository.PostRepoSharedPrefsImpl
+import ru.netology.nmedia.model.FeedState
+import ru.netology.nmedia.repository.PostRepoImpl
 import ru.netology.nmedia.repository.PostRepository
+import ru.netology.nmedia.util.SingleLiveEvent
 
 private val empty = Post(
     id = 0,
     content = "",
     author = "",
     likedByMe = false,
-    published = ""
+    likes = 0,
+    published = 0,
 )
 
 //viewmodel exist in 1 Activity!!!
 //class PostViewModel : ViewModel() {
-class PostViewModel(application: Application): AndroidViewModel(application) {
+class PostViewModel(application: Application) : AndroidViewModel(application) {
     //application extends context!!!
-    //private val repository: PostRepository = PostRepoInMemImpl()
-    //private val repository: PostRepository = PostRepoSharedPrefsImpl(application)
-    //private val repository: PostRepository = PostRepoFilesImpl(application)
-    private val repository: PostRepository = PostRepoSQLiteImpl(
-        AppDb.getInstance(application).postDao
-    )
-    val data = repository.getAll()
+    private val repository: PostRepository = PostRepoImpl()
+
+    private val privateCurrentState = MutableLiveData(FeedState())
+    val currentState: LiveData<FeedState>
+        get() = privateCurrentState
+
     val edited = MutableLiveData(empty)
 
+    private val privatePostCreated = SingleLiveEvent<Unit>()
+    val postCreated: LiveData<Unit>
+        get() = privatePostCreated
+
+    private val privatePostCanceled = SingleLiveEvent<Unit>()
+    val postCanceled: LiveData<Unit>
+        get() = privatePostCanceled
+
+    private var posts: List<Post> = emptyList()
+    private var oldPosts: List<Post> = emptyList()
+
+    init {
+        load()
+    }
+
+    fun load() {
+        //start loading
+        privateCurrentState.value = (FeedState(loading = true))
+
+        //thread{...}, thread in async method
+        repository.getAllAsync(object : PostRepository.Callback<List<Post>> {
+            override fun onSuccess(data: List<Post>) {
+                posts = data
+                oldPosts = data
+                privateCurrentState.value = (
+                        FeedState(
+                            posts = data,
+                            empty = posts.isEmpty()
+                        )
+                        )
+            }
+
+            override fun onError(throwable: Throwable) {
+                privateCurrentState.value = (FeedState(
+                    posts = oldPosts, error = true,
+                    lastErrorAction = "Error with list post load."
+                ))
+            }
+        })
+    }
+
+    fun loadOfPost(toLoadPost: Post) {
+        privateCurrentState.value = (FeedState(loading = true))
+        if (!posts.map { it.id }.contains(toLoadPost.id)) { //newPost
+            posts = listOf(toLoadPost) + posts
+        } else { //editPost
+            posts = posts.map { if (it.id != toLoadPost.id) it else toLoadPost }
+        }
+        privateCurrentState.value = (
+                FeedState(
+                    posts = posts,
+                    empty = posts.isEmpty()
+                )
+                )
+    }
+
     fun changeContentAndSave(content: String) {
-        edited.value?.let { //it of post
+        edited.value?.let { editedPost -> //it of post
             val text = content.trim()
-            if (it.content == text) {
+            if (editedPost.content == text) {
                 return
             }
-            edited.value?.let {
-                repository.save(it.copy(content = text))//cntl+alt+b to fun code
+            edited.value = edited.value?.copy(content = text)
+            edited.value?.let { changedPost ->
+                repository.save(
+                    changedPost,
+                    object : PostRepository.Callback<Post> {
+                        override fun onSuccess(data: Post) {
+                            loadOfPost(data)
+                            privatePostCreated.postValue(Unit)
+                        }
+
+                        override fun onError(throwable: Throwable) {
+                            privateCurrentState.value =
+                                (FeedState(
+                                    posts = oldPosts,
+                                    error = true,
+                                    lastErrorAction = "Error with add/edit post."
+                                ))
+                            privatePostCanceled.postValue(Unit)
+                        }
+                    })//save, cntl+alt+b to fun code
             }
-            edited.value = empty
+            edited.postValue(empty)
+            //privatePostCreated.postValue(Unit)
         }
     }
 
@@ -52,9 +125,77 @@ class PostViewModel(application: Application): AndroidViewModel(application) {
 
     fun cancelEdit() {
         edited.value = empty
+        privatePostCanceled.postValue(Unit)
     }
 
-    fun likeById(id: Long) = repository.likeById(id)
-    fun shareById(id: Long) = repository.shareById(id)
-    fun removeById(id: Long) = repository.removeById(id)
+    fun likeById(id: Long) {
+        val post =
+            posts.find { it.id == id }//antisticking before request answer (only with throw id, not post)
+        if (post?.likedByMe == false) {
+            repository.likeById(id, object : PostRepository.Callback<Post> {
+                override fun onSuccess(data: Post) {
+                    loadOfPost(data)
+                }
+
+                override fun onError(throwable: Throwable) {
+                    privateCurrentState.value = (FeedState(
+                        posts = oldPosts,
+                        error = true,
+                        lastErrorAction = "Error with liking post."
+                    ))
+                }
+            })
+            posts =
+                posts.map { if (it.id == id) it.copy(likedByMe = true) else it }
+        }
+    }
+
+    fun unLikeById(id: Long) {
+        val post =
+            posts.find { it.id == id }//antisticking before request answer (only with throw id, not post)
+        if (post?.likedByMe == true) {
+            repository.unLikeById(id, object : PostRepository.Callback<Post> {
+                override fun onSuccess(data: Post) {
+                    loadOfPost(data)
+                }
+
+                override fun onError(throwable: Throwable) {
+                    privateCurrentState.value = (FeedState(
+                        posts = oldPosts,
+                        error = true,
+                        lastErrorAction = "Error with unliking post."
+                    ))
+                }
+            })
+            posts =
+                posts.map { if (it.id == id) it.copy(likedByMe = false) else it }
+        }
+    }
+
+    //fun shareById(id: Long) = thread {repository.shareById(id)}
+    fun removeById(id: Long) {
+        val oldList = posts
+        posts = posts.filter { it.id != id }
+        repository.removeById(id, object : PostRepository.Callback<Unit> {
+            override fun onSuccess(data: Unit) {
+                privateCurrentState.value = (
+                        FeedState(
+                            posts = posts,
+                            empty = posts.isEmpty()
+                        )
+                        )
+            }
+
+            override fun onError(throwable: Throwable) {
+                privateCurrentState.value = (
+                        FeedState(
+                            posts = oldList,
+                            error = true,
+                            empty = oldList.isEmpty(),
+                            lastErrorAction = "Error with delete post."
+                        )
+                        )
+            }
+        })
+    }
 }

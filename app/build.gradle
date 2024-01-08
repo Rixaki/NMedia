@@ -43,6 +43,12 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            manifestPlaceholders.useClearTextTraffic = false
+            buildConfigField "String", "BASE_URL", "\"https://netomedia.ru\""
+        }
+        debug {
+            manifestPlaceholders.useClearTextTraffic = true
+            buildConfigField "String", "BASE_URL", "\"http://10.0.2.2:9999/api/slow\""
         }
     }
     compileOptions {
@@ -54,6 +60,8 @@ android {
     }
     buildFeatures {
         compose true
+        viewBinding true
+        buildConfig true
     }
     composeOptions {
         kotlinCompilerExtensionVersion '1.4.3'
@@ -78,6 +86,10 @@ def gson_version = "2.10.1"
 def nav_version = "2.7.5"
 def room_version = "2.6.0"
 def play_service_base_version = "18.2.0"
+def okhttp_version = "4.12.0"
+def swipe_refresh_version = "1.1.0"
+def glide_version = "4.16.0"
+def retrofit_version = "2.9.0"
 
 dependencies {
 
@@ -121,4 +133,12 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:32.6.0')
     implementation "com.google.android.gms:play-services-base:$play_service_base_version"
     implementation "com.google.firebase:firebase-messaging-ktx"
+
+    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:$swipe_refresh_version")
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
+
+    implementation "com.github.bumptech.glide:glide:$glide_version"
 }

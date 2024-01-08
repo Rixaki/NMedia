@@ -5,11 +5,11 @@ import androidx.room.PrimaryKey;
 import ru.netology.nmedia.dto.Post
 
 @Entity
-data class PostEntity (
+data class PostEntity(
     @PrimaryKey(autoGenerate = true) val id: Long,
     val author: String,
     val content: String,
-    val published: String,
+    val published: Long,
     val likedByMe: Boolean = false,
     val likes: Long = 0,
     val shares: Long = 0,
