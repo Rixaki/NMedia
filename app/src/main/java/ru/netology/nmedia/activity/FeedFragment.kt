@@ -132,10 +132,8 @@ class FeedFragment : Fragment() {
                     getString(R.string.error_bar_start_text) + state.lastErrorAction,
                     10_000//milliseconds
                 )
-                val snackbarTextView =
-                    snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
-                snackbarTextView.setMaxLines(3);  // show multiple line
                 snackbar
+                    .setTextMaxLines(3)
                     .setAction("OK") {
                         snackbar.dismiss()
                     }

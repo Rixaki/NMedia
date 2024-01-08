@@ -76,7 +76,7 @@ class PostViewHolder(
     fun bind(post: Post) {
         with(binding) {
             author.text = post.author
-            publishedTime.text = post.published
+            publishedTime.text = post.published.toString()
             cardContent.text = post.content
 
             val baseAvaUrl = "http://10.0.2.2:9999/avatars/"
@@ -106,23 +106,6 @@ class PostViewHolder(
             if (post.attachment != null) {
                 val baseAttUrl = "http://10.0.2.2:9999/images/"
                 attachmentIv.visibility = View.VISIBLE
-
-                //for avaliable to change layoutparams(?)
-                attachmentIv.requestLayout()
-
-                //attachmentIv's start layoutparams are small and
-                // iv.load will get low-quality(small) image
-
-                val displayMetrics = attachmentIv.resources.displayMetrics
-                val screenHeight =
-                    (displayMetrics.heightPixels.toFloat() / displayMetrics.density).toInt()
-                val attachmentIvHeight =
-                    if (screenHeight > 300) 300 else screenHeight
-
-                with(attachmentIv.layoutParams) {
-                    width = LayoutParams.MATCH_PARENT
-                    height = attachmentIvHeight
-                }
 
                 with(post.attachment) {
                     attachmentIv.load(

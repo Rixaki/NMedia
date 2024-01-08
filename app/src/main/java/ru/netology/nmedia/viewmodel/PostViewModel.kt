@@ -16,7 +16,7 @@ private val empty = Post(
     author = "",
     likedByMe = false,
     likes = 0,
-    published = ""
+    published = 0,
 )
 
 //viewmodel exist in 1 Activity!!!
@@ -108,7 +108,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                                 (FeedState(
                                     posts = oldPosts,
                                     error = true,
-                                    lastErrorAction = "Error with save/edit post."
+                                    lastErrorAction = "Error with add/edit post."
                                 ))
                             privatePostCanceled.postValue(Unit)
                         }
