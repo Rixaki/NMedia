@@ -11,7 +11,7 @@ fun countToString(x: Long): String {
             0, 1, 2 -> return x.toString()
             3, 4, 5 -> return ("%.2f".format((x + 0.0) * (10.0).pow(-3.0))) + "K"
             6, 7, 8 -> return ("%.2f".format((x + 0.0) * (10.0).pow(-6.0))) + "M"
-            else -> return if (x >= 1_000_000) ">=1B" else "error"
+            else -> return if (x >= 1_000_000) ">=1B" else "ru/netology/nmedia/error"
         }
     }
 }

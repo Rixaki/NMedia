@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -88,6 +87,10 @@ class FeedFragment : Fragment() {
                     })
             }
 
+            override fun onReuploadLtn(post: Post) {
+                viewModel.saveLocal(post.id)
+            }
+
             override fun onRemoveLtn(post: Post) {
                 viewModel.removeById(post.id)
             }
@@ -120,12 +123,21 @@ class FeedFragment : Fragment() {
 
         binding.list.adapter = adapter
 
-        viewModel.currentState.observe(viewLifecycleOwner) { state ->
+        viewModel.data.observe(viewLifecycleOwner) { feedModel ->
             val hasNewPost: Boolean =
-                adapter.currentList.size < state.sizeOfLoaded
-            adapter.submitList(state.posts)
-            binding.progress.isVisible = state.loading
+                adapter.currentList.size < feedModel.posts.size
+                        && adapter.itemCount > 0
+            adapter.submitList(feedModel.posts)
             //binding.errorGroup.isVisible = state.error
+
+            binding.emptyText.isVisible = feedModel.empty
+            if (hasNewPost) {
+                binding.list.smoothScrollToPosition(0)//submitlist is ansync!!!
+            }
+        }
+
+        viewModel.dataState.observe(viewLifecycleOwner) { state ->
+            binding.progress.isVisible = state.loading
             if (state.error) {
                 val snackbar = Snackbar.make(
                     binding.root,
@@ -139,11 +151,7 @@ class FeedFragment : Fragment() {
                     }
                     .show()
             }
-            binding.emptyText.isVisible = state.empty
-            binding.swiperefresh.isRefreshing = state.loading
-            if (hasNewPost) {
-                binding.list.smoothScrollToPosition(0)//submitlist is ansync!!!
-            }
+            binding.swiperefresh.isRefreshing = state.refreshing
         }
 
         /*
@@ -153,7 +161,8 @@ class FeedFragment : Fragment() {
          */
 
         binding.swiperefresh.setOnRefreshListener {
-            viewModel.load()
+            viewModel.refresh()
+            //viewModel.load()
         }
 
         return binding.root

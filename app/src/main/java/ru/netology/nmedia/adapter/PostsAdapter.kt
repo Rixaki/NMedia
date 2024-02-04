@@ -1,6 +1,5 @@
 package ru.netology.nmedia.adapter
 
-import android.app.ActionBar.LayoutParams
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,6 +22,7 @@ interface OnIterationListener {
     fun onRemoveLtn(post: Post) {}
     fun onPlayVideoLtn(post: Post) {}
     fun onRootLtn(post: Post) {}
+    fun onReuploadLtn(post: Post) {}
 }
 
 class PostsAdapter(
@@ -78,6 +78,11 @@ class PostViewHolder(
             author.text = post.author
             publishedTime.text = post.published.toString()
             cardContent.text = post.content
+
+            unSaved.visibility = if (post.isSaved) View.GONE else View.VISIBLE
+            unSaved.setOnClickListener {
+                onIterationListener.onReuploadLtn(post)
+            }
 
             val baseAvaUrl = "http://10.0.2.2:9999/avatars/"
             avatar.load(

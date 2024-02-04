@@ -31,4 +31,6 @@
     <string name="no_posts">Постов нет</string>
     <string name="new_post">Новый пост</string>
     <string name="error_bar_start_text">"Действие НЕ выполнено. Пролистните сверху вниз, чтобы попытаться обновить страницу. Код ошибки -  "</string>
+    <string name="upload_failed">Отправка сообщения не удалась.</string>
+    <string name="reupload">Переотправить черновик?</string>
 </resources>

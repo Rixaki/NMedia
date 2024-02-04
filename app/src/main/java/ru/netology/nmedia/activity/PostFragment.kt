@@ -86,6 +86,10 @@ class PostFragment : Fragment() {
                 findNavController().navigateUp()
             }
 
+            override fun onReuploadLtn(post: Post) {
+                viewModel.saveLocal(post.id)
+            }
+
             override fun onPlayVideoLtn(post: Post) {
                 if (!post.video.isNullOrBlank()) {
                     val url = post.video
@@ -104,7 +108,7 @@ class PostFragment : Fragment() {
             }
         })// val viewHolder
 
-        val posts = viewModel.currentState.value?.posts
+        val posts = viewModel.data.value?.posts
         val post: Post? = posts?.find { it.id == id }
         if (post == null) {
             findNavController().navigateUp()

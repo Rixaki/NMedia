@@ -61,13 +61,27 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/avatar" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/unSaved"
+            style="@style/Widget.AppTheme.ReuploadButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/buttonDefaultMarginDim"
+            android:contentDescription="@string/upload_failed"
+            android:text="@string/reupload"
+            android:textColor="@android:color/black"
+            android:visibility="gone"
+            app:icon="@drawable/post_failed_24"
+            app:layout_constraintEnd_toEndOf="@+id/menu"
+            app:layout_constraintTop_toBottomOf="@id/barrierPostHeadBottom"  />
+
         <TextView
             android:id="@+id/cardContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/defaultMargin"
             android:autoLink="web"
-            app:layout_constraintTop_toBottomOf="@id/barrierPostHeadBottom"
+            app:layout_constraintTop_toBottomOf="@id/unSaved"
             tools:text="@sample/posts.json/data/content" />
 
         <androidx.constraintlayout.widget.Barrier
@@ -77,7 +91,7 @@
             android:paddingBottom="@dimen/defaultMargin"
             app:barrierDirection="bottom"
             app:barrierMargin="@dimen/defaultMargin"
-            app:constraint_referenced_ids="menu, avatar, author, publishedTime" />
+            app:constraint_referenced_ids="menu, avatar, author, publishedTime, unSaved" />
 
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/barrierPostContentBottom"
@@ -147,8 +161,8 @@
             android:id="@+id/attachmentIv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
             android:layout_margin="@dimen/defaultMargin"
+            android:adjustViewBounds="true"
             android:clickable="true"
             android:focusable="true"
             android:visibility="visible"

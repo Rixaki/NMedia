@@ -1,29 +1,42 @@
 package ru.netology.nmedia.entity;
 
+import androidx.room.Embedded
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import androidx.room.TypeConverter
+import androidx.room.TypeConverters
+import ru.netology.nmedia.dto.Attachment
+import ru.netology.nmedia.dto.AttachmentType
 import ru.netology.nmedia.dto.Post
 
 @Entity
 data class PostEntity(
     @PrimaryKey(autoGenerate = true) val id: Long,
     val author: String,
+    val authorAvatar: String,
     val content: String,
     val published: Long,
     val likedByMe: Boolean = false,
     val likes: Long = 0,
     val shares: Long = 0,
-    val video: String? = null
+    val isSaved: Boolean = false,
+    val video: String? = null,
+    @TypeConverters(AttachmentConverter::class)
+    @Embedded
+    val attachment: AttachmentEntity? = null
 ) {
     fun toDto(): Post = Post(
         id = id,
         author = author,
+        authorAvatar = authorAvatar,
         content = content,
         published = published,
         likedByMe = likedByMe,
         likes = likes,
         shares = shares,
-        video = video
+        isSaved = isSaved,
+        video = video,
+        attachment = attachment?.toAttDto()
     )
 
     companion object {
@@ -31,13 +44,44 @@ data class PostEntity(
             PostEntity(
                 id = id,
                 author = author,
+                authorAvatar = authorAvatar,
                 content = content,
                 published = published,
                 likedByMe = likedByMe,
                 likes = likes,
                 shares = shares,
-                video = video
+                isSaved = isSaved,
+                video = video,
+                attachment = dto?.attachment?.let {
+                    AttachmentEntity.fromDtoToEntAtt(it)
+                }
             )
         }
     }
+}
+
+data class AttachmentEntity(
+    val url: String,
+    val description: String,
+    val type: AttachmentTypeEntity
+){
+    fun toAttDto(): Attachment = Attachment(
+        url = url,
+        description = description,
+        type = AttachmentType.valueOf(type.typeName)
+    )
+
+    companion object {
+        fun fromDtoToEntAtt(dto: Attachment): AttachmentEntity = with(dto) {
+            AttachmentEntity(
+                url = url,
+                description = description,
+                type = AttachmentTypeEntity.valueOf(type.typeName)
+            )
+        }
+    }
+}
+
+enum class AttachmentTypeEntity(val typeName: String) {
+    IMAGE("image")
 }

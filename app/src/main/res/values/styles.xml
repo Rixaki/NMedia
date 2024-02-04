@@ -21,6 +21,14 @@
         <item name="cornerSize">16dp</item>>
     </style>
 
+    <style name="Widget.AppTheme.ReuploadButton" parent="Widget.Material3.Button.TextButton.Icon">
+        <item name="iconTint">#000</item>
+        <item name="backgroundTint">#f99</item>
+        <item name="android:textColor">#000</item>
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>>
+    </style>
+
     <style name="Widget.AppTheme.ViewCount" parent="Widget.Material3.Button.TextButton.Icon">
         <item name="iconTint">#000</item>
         <item name="backgroundTint">#fb9</item>

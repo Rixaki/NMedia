@@ -4,8 +4,13 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.map
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
+import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.model.FeedState
+import ru.netology.nmedia.model.FeedModel
+import ru.netology.nmedia.model.FeedModelState
 import ru.netology.nmedia.repository.PostRepoImpl
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.util.SingleLiveEvent
@@ -23,11 +28,19 @@ private val empty = Post(
 //class PostViewModel : ViewModel() {
 class PostViewModel(application: Application) : AndroidViewModel(application) {
     //application extends context!!!
-    private val repository: PostRepository = PostRepoImpl()
+    private val repository: PostRepository =
+        PostRepoImpl(
+            AppDb.getInstance(application).postDao,
+            AppDb.getInstance(application).draftPostDao
+        )
 
-    private val privateCurrentState = MutableLiveData(FeedState())
-    val currentState: LiveData<FeedState>
-        get() = privateCurrentState
+    private val privateState = MutableLiveData<FeedModelState>()
+    val dataState: LiveData<FeedModelState>
+        get() = privateState
+
+    val data: LiveData<FeedModel> = repository.data.map { posts ->
+        FeedModel(posts, posts.isEmpty())
+    }
 
     val edited = MutableLiveData(empty)
 
@@ -39,84 +52,90 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     val postCanceled: LiveData<Unit>
         get() = privatePostCanceled
 
-    private var posts: List<Post> = emptyList()
-    private var oldPosts: List<Post> = emptyList()
-
     init {
         load()
     }
 
     fun load() {
         //start loading
-        privateCurrentState.value = (FeedState(loading = true))
-
-        //thread{...}, thread in async method
-        repository.getAllAsync(object : PostRepository.Callback<List<Post>> {
-            override fun onSuccess(data: List<Post>) {
-                posts = data
-                oldPosts = data
-                privateCurrentState.value = (
-                        FeedState(
-                            posts = data,
-                            empty = posts.isEmpty()
-                        )
-                        )
+        privateState.value = (FeedModelState(loading = true))
+        viewModelScope.launch {
+            try {
+                repository.getAll()
+                privateState.value = FeedModelState()
+            } catch (e: Exception) {
+                privateState.value = FeedModelState(
+                    error = true,
+                    lastErrorAction = "Error with list load."
+                )
             }
-
-            override fun onError(throwable: Throwable) {
-                privateCurrentState.value = (FeedState(
-                    posts = oldPosts, error = true,
-                    lastErrorAction = "Error with list post load."
-                ))
-            }
-        })
+        }
     }
 
+    fun refresh() {
+        privateState.value = (FeedModelState(refreshing = true))
+        viewModelScope.launch {
+            try {
+                repository.getAll()
+                privateState.value = FeedModelState()
+            } catch (e: Exception) {
+                privateState.value = FeedModelState(
+                    error = true,
+                    lastErrorAction = "Error with list refresh."
+                )
+            }
+        }
+    }
+
+    /*
     fun loadOfPost(toLoadPost: Post) {
-        privateCurrentState.value = (FeedState(loading = true))
-        if (!posts.map { it.id }.contains(toLoadPost.id)) { //newPost
-            posts = listOf(toLoadPost) + posts
-        } else { //editPost
-            posts = posts.map { if (it.id != toLoadPost.id) it else toLoadPost }
+        privateState.value = (FeedModelState(loading = true))
+        var posts = data.value?.posts
+        if (posts != null) {
+            if (!posts.map { it.id }.contains(toLoadPost.id)) { //newPost
+                posts = listOf(toLoadPost) + posts
+            } else { //editPost
+                posts = posts.map { if (it.id != toLoadPost.id) it else toLoadPost }
+            }
         }
-        privateCurrentState.value = (
-                FeedState(
-                    posts = posts,
-                    empty = posts.isEmpty()
+        privateState.value = FeedModelState()
+    }
+     */
+
+    fun saveLocal(id: Long) {
+        viewModelScope.launch {
+            try {
+                repository.uploadDraft(id)
+            } catch (e: Exception) {
+                privateState.value = FeedModelState(
+                    error = true,
+                    //lastErrorAction = "Error with draft upload."
                 )
-                )
+            }
+        }
     }
 
-    fun changeContentAndSave(content: String) {
-        edited.value?.let { editedPost -> //it of post
-            val text = content.trim()
-            if (editedPost.content == text) {
-                return
-            }
-            edited.value = edited.value?.copy(content = text)
-            edited.value?.let { changedPost ->
-                repository.save(
-                    changedPost,
-                    object : PostRepository.Callback<Post> {
-                        override fun onSuccess(data: Post) {
-                            loadOfPost(data)
-                            privatePostCreated.postValue(Unit)
-                        }
-
-                        override fun onError(throwable: Throwable) {
-                            privateCurrentState.value =
-                                (FeedState(
-                                    posts = oldPosts,
-                                    error = true,
-                                    lastErrorAction = "Error with add/edit post."
-                                ))
-                            privatePostCanceled.postValue(Unit)
-                        }
-                    })//save, cntl+alt+b to fun code
-            }
-            edited.postValue(empty)
-            //privatePostCreated.postValue(Unit)
+    fun changeContentAndSave(inputContent: String) {
+        if (edited.value?.content == inputContent) {
+            return
         }
+        edited.value = edited.value?.copy(content = inputContent)
+        edited.value?.let { editedPost ->
+            viewModelScope.launch {
+                try {
+                    repository.saveWithDb(editedPost)
+                    privatePostCreated.postValue(Unit)
+                } catch (e: Exception) {
+                    saveLocal(editedPost.id)
+                    privateState.value = FeedModelState(
+                        error = true,
+                        lastErrorAction = "Error with add/edit post."
+                    )
+                    privatePostCanceled.postValue(Unit)
+                }
+            }
+        }
+        edited.postValue(empty)
     }
 
     fun edit(post: Post) {
@@ -129,73 +148,57 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun likeById(id: Long) {
-        val post =
-            posts.find { it.id == id }//antisticking before request answer (only with throw id, not post)
-        if (post?.likedByMe == false) {
-            repository.likeById(id, object : PostRepository.Callback<Post> {
-                override fun onSuccess(data: Post) {
-                    loadOfPost(data)
-                }
-
-                override fun onError(throwable: Throwable) {
-                    privateCurrentState.value = (FeedState(
-                        posts = oldPosts,
+        viewModelScope.launch {
+            val posts = data.value?.posts
+            val post =
+                posts?.find { it.id == id }//antisticking before request answer (only with throw id, not post)
+            if (post?.likedByMe == false) {
+                try {
+                    repository.likeById(id)
+                    data.value?.posts?.map { if (it.id == id) it.copy(likedByMe = true) else it }
+                } catch (e: Exception) {
+                    privateState.value = FeedModelState(
                         error = true,
                         lastErrorAction = "Error with liking post."
-                    ))
+                    )
                 }
-            })
-            posts =
-                posts.map { if (it.id == id) it.copy(likedByMe = true) else it }
+            }
         }
     }
 
     fun unLikeById(id: Long) {
-        val post =
-            posts.find { it.id == id }//antisticking before request answer (only with throw id, not post)
-        if (post?.likedByMe == true) {
-            repository.unLikeById(id, object : PostRepository.Callback<Post> {
-                override fun onSuccess(data: Post) {
-                    loadOfPost(data)
-                }
-
-                override fun onError(throwable: Throwable) {
-                    privateCurrentState.value = (FeedState(
-                        posts = oldPosts,
+        viewModelScope.launch {
+            val posts = data.value?.posts
+            val post =
+                posts?.find { it.id == id }//antisticking before request answer (only with throw id, not post)
+            if (post?.likedByMe == true) {
+                try {
+                    repository.unLikeById(id)
+                    data.value?.posts?.map { if (it.id == id) it.copy(likedByMe = false) else it }
+                } catch (e: Exception) {
+                    privateState.value = FeedModelState(
                         error = true,
                         lastErrorAction = "Error with unliking post."
-                    ))
+                    )
                 }
-            })
-            posts =
-                posts.map { if (it.id == id) it.copy(likedByMe = false) else it }
+            }
         }
     }
 
     //fun shareById(id: Long) = thread {repository.shareById(id)}
-    fun removeById(id: Long) {
-        val oldList = posts
-        posts = posts.filter { it.id != id }
-        repository.removeById(id, object : PostRepository.Callback<Unit> {
-            override fun onSuccess(data: Unit) {
-                privateCurrentState.value = (
-                        FeedState(
-                            posts = posts,
-                            empty = posts.isEmpty()
-                        )
-                        )
-            }
 
-            override fun onError(throwable: Throwable) {
-                privateCurrentState.value = (
-                        FeedState(
-                            posts = oldList,
-                            error = true,
-                            empty = oldList.isEmpty(),
-                            lastErrorAction = "Error with delete post."
-                        )
-                        )
+    fun removeById(id: Long) {
+        viewModelScope.launch {
+            try {
+                repository.removeById(id)
+                data.value?.posts?.filter { it.id != id }
+            } catch (e: Exception) {
+                saveLocal(id)
+                privateState.value = FeedModelState(
+                    error = true,
+                    lastErrorAction = "Error with delete post."
+                )
             }
-        })
+        }
     }
 }

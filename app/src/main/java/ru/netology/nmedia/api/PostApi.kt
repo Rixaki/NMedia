@@ -2,7 +2,7 @@ package ru.netology.nmedia.api
 
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Call
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
@@ -39,19 +39,19 @@ private val retrofit = Retrofit.Builder()
 interface PostApi {
 
     @GET("posts")
-    fun getAll(): Call<List<Post>>
+    suspend fun getAll(): Response<List<Post>>
 
     @POST("posts")
-    fun save(@Body post: Post): Call<Post>
+    suspend fun save(@Body post: Post): Response<Post>
 
     @DELETE("posts/{id}")
-    fun deletePostById(@Path("id") id: Long): Call<Unit>
+    suspend fun deletePostById(@Path("id") id: Long): Response<Unit>
 
     @POST("posts/{id}/likes")
-    fun like(@Path("id") id: Long): Call<Post>
+    suspend fun like(@Path("id") id: Long): Response<Post>
 
     @DELETE("posts/{id}/likes")
-    fun unlike(@Path("id") id: Long): Call<Post>
+    suspend fun unlike(@Path("id") id: Long): Response<Post>
 }
 
 object PostApiService {

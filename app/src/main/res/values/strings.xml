@@ -30,4 +30,6 @@
     <string name="no_posts">No posts</string>
     <string name="new_post">New post</string>
     <string name="error_bar_start_text">"Action was NOT performed. Swipe from top to bottom to try to refresh the page. Error code - "</string>
+    <string name="upload_failed">Post upload failed</string>
+    <string name="reupload">Reupload draft?</string>
 </resources>
