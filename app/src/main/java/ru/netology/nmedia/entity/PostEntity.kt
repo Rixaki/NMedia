@@ -10,6 +10,7 @@ import ru.netology.nmedia.dto.AttachmentType
 import ru.netology.nmedia.dto.Post
 
 @Entity
+@TypeConverters(AttachmentConverter::class)
 data class PostEntity(
     @PrimaryKey(autoGenerate = true) val id: Long,
     val author: String,
@@ -21,9 +22,8 @@ data class PostEntity(
     val shares: Long = 0,
     val isSaved: Boolean = false,
     val video: String? = null,
-    @TypeConverters(AttachmentConverter::class)
     @Embedded
-    val attachment: AttachmentEntity? = null
+    val attachment: Attachment? = null
 ) {
     fun toDto(): Post = Post(
         id = id,
@@ -36,7 +36,7 @@ data class PostEntity(
         shares = shares,
         isSaved = isSaved,
         video = video,
-        attachment = attachment?.toAttDto()
+        attachment = attachment
     )
 
     companion object {
@@ -52,9 +52,7 @@ data class PostEntity(
                 shares = shares,
                 isSaved = isSaved,
                 video = video,
-                attachment = dto?.attachment?.let {
-                    AttachmentEntity.fromDtoToEntAtt(it)
-                }
+                attachment = attachment
             )
         }
     }

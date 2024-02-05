@@ -37,8 +37,12 @@ class PostRepoImpl(
                 response.code(),
                 response.message()
             )
-            draftPostDao.removeById(id)
-            postDao.insert(PostEntity.fromDtoToEnt(body))
+            val updatedPost = body.copy(
+                isSaved = true,
+                id = body.id
+            )
+            draftPostDao.removeById(draftPost.id)
+            postDao.insert(PostEntity.fromDtoToEnt(updatedPost))
         } catch (e: IOException) {
             throw NetworkError
         } catch (e: Exception) {
@@ -167,6 +171,7 @@ class PostRepoImpl(
         var isDraftSet = false
         try {
             //postDao.insert(PostEntity.fromDtoToEnt(post))
+            //println("inserting to draft id ${post.id}")
             draftPostDao.insert(PostEntity.fromDtoToEnt(post))
             val response = PostApiService.service.save(post)
             if (!response.isSuccessful) {
@@ -175,6 +180,7 @@ class PostRepoImpl(
                 isDraftSet = true
                 throw ApiError(response.code(), response.message())
             }
+            //println("pre responce for id ${post.id}")
 
             val body = response.body() ?: throw ApiError(
                 response.code(),
@@ -184,7 +190,8 @@ class PostRepoImpl(
                 isSaved = true,
                 id = body.id
             )
-            postDao.removeById(post.id)
+            draftPostDao.removeById(post.id)
+            //println("removing id${post.id}")
             postDao.insert(PostEntity.fromDtoToEnt(updatedPost))
         } catch (e: Exception) {
             post.isSaved = false

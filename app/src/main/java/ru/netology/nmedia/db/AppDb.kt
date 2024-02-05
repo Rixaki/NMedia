@@ -8,6 +8,8 @@ import androidx.room.TypeConverters
 import ru.netology.nmedia.dao.DraftPostDao
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.entity.AttachmentConverter
+import ru.netology.nmedia.entity.AttachmentEntity
+import ru.netology.nmedia.entity.AttachmentTypeEntity
 import ru.netology.nmedia.entity.PostEntity
 
 @Database(entities = [PostEntity::class], version = 1)
