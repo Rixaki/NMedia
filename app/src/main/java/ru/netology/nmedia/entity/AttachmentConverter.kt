@@ -26,11 +26,11 @@ class AttachmentConverter {
 
     @TypeConverter
     fun fromEntAttachmentType(attEntType: AttachmentTypeEntity): AttachmentType {
-        return AttachmentType.valueOf(attEntType.typeName)
+        return AttachmentType.valueOf(attEntType.name)
     }
 
     @TypeConverter
     fun toEntAttachmentType(attType: AttachmentType): AttachmentTypeEntity {
-        return AttachmentTypeEntity.valueOf(attType.typeName)
+        return AttachmentTypeEntity.valueOf(attType.name)
     }
 }

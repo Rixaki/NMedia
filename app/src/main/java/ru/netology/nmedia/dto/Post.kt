@@ -20,8 +20,8 @@ data class Attachment(
     val type: AttachmentType
 )
 
-enum class AttachmentType(val typeName: String) {
-    IMAGE("image")
+enum class AttachmentType {
+    IMAGE
 }
 
 /*

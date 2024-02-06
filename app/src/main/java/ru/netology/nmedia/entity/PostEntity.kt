@@ -65,7 +65,7 @@ data class AttachmentEntity(
     fun toAttDto(): Attachment = Attachment(
         url = url,
         description = description,
-        type = AttachmentType.valueOf(type.typeName)
+        type = AttachmentType.valueOf(type.name)
     )
 
     companion object {
@@ -73,12 +73,12 @@ data class AttachmentEntity(
             AttachmentEntity(
                 url = url,
                 description = description,
-                type = AttachmentTypeEntity.valueOf(type.typeName)
+                type = AttachmentTypeEntity.valueOf(type.name)
             )
         }
     }
 }
 
-enum class AttachmentTypeEntity(val typeName: String) {
-    IMAGE("image")
+enum class AttachmentTypeEntity {
+    IMAGE
 }
