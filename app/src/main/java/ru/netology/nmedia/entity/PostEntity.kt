@@ -1,9 +1,8 @@
 package ru.netology.nmedia.entity;
 
 import androidx.room.Embedded
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
-import androidx.room.TypeConverter
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.AttachmentType
@@ -62,7 +61,7 @@ data class AttachmentEntity(
     val url: String,
     val description: String,
     val type: AttachmentTypeEntity
-){
+) {
     fun toAttDto(): Attachment = Attachment(
         url = url,
         description = description,

@@ -26,6 +26,18 @@
                 tools:listitem="@layout/fragment_post" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+        <TextView
+            android:id="@+id/statusText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin = "@dimen/defaultMargin"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:background="#aaccccff"
+            android:textSize="@dimen/defaultMargin"
+            android:animateLayoutChanges="true"
+            android:text="Loading..." />
+
         <ProgressBar
             android:id="@+id/progress"
             android:layout_width="wrap_content"

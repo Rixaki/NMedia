@@ -103,9 +103,11 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
      */
 
     fun saveLocal(id: Long) {
+        privateState.value = (FeedModelState(loading = true))
         viewModelScope.launch {
             try {
                 repository.uploadDraft(id)
+                privateState.value = FeedModelState()
             } catch (e: Exception) {
                 privateState.value = FeedModelState(
                     error = true,
@@ -119,7 +121,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         if (edited.value?.content == inputContent) {
             return
         }
-        edited.value = edited.value?.copy(content = inputContent)
+        edited.value = edited.value?.copy(
+            content = inputContent,
+            isSaved = false
+        )
         edited.value?.let { editedPost ->
             viewModelScope.launch {
                 try {

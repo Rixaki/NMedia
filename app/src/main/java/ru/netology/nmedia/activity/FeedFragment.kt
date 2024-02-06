@@ -46,7 +46,6 @@ class FeedFragment : Fragment() {
         val viewModel: PostViewModel by activityViewModels()
 
         binding.newPostButton.setOnClickListener {
-            //newPostContract.launch(null)
             findNavController().navigate(R.id.action_feedFragment_to_newOrEditPostFragment)
         }
 
@@ -60,7 +59,6 @@ class FeedFragment : Fragment() {
             }
 
             override fun onShareLtn(post: Post) {
-                //viewModel.shareById(post.id)
                 val intent = Intent().apply {
                     action = Intent.ACTION_SEND
                     putExtra(Intent.EXTRA_TEXT, post.content)
@@ -68,18 +66,15 @@ class FeedFragment : Fragment() {
                 }
                 intent.putExtra("postId", post.id.toLong())
 
-                //val chooserIntent = Intent.createChooser(intent, getString(R.string.chooser_share_post))
                 val chooserIntent = Intent.createChooser(
                     intent,
                     null
                 )//ACTION_SEND have not optional title
-                //viewModel.shareById(post.id)
                 startActivity(chooserIntent)
             }
 
             override fun onEditLtn(post: Post) {
                 viewModel.edit(post)
-                //editPostContract.launch(post.content)
                 findNavController().navigate(
                     R.id.action_feedFragment_to_newOrEditPostFragment,
                     Bundle().apply {
@@ -125,10 +120,10 @@ class FeedFragment : Fragment() {
 
         viewModel.data.observe(viewLifecycleOwner) { feedModel ->
             val hasNewPost: Boolean =
-                adapter.currentList.size < feedModel.posts.size
+                (adapter.currentList.size < feedModel.posts.size
+                        || kotlin.math.abs(adapter.currentList.size - feedModel.posts.size) == 1)
                         && adapter.itemCount > 0
             adapter.submitList(feedModel.posts)
-            //binding.errorGroup.isVisible = state.error
 
             binding.emptyText.isVisible = feedModel.empty
             if (hasNewPost) {
@@ -137,6 +132,13 @@ class FeedFragment : Fragment() {
         }
 
         viewModel.dataState.observe(viewLifecycleOwner) { state ->
+            binding.statusText.clearAnimation()
+            binding.statusText.visibility = View.VISIBLE
+            if (state.loading) {
+                binding.statusText.animate().alpha(1.0f)//visible
+            } else {
+                binding.statusText.animate().alpha(0.0f)//vanish
+            }
             binding.progress.isVisible = state.loading
             if (state.error) {
                 val snackbar = Snackbar.make(
@@ -150,19 +152,13 @@ class FeedFragment : Fragment() {
                         snackbar.dismiss()
                     }
                     .show()
+
             }
             binding.swiperefresh.isRefreshing = state.refreshing
         }
 
-        /*
-        binding.retry.setOnClickListener {
-            viewModel.load()
-        }
-         */
-
         binding.swiperefresh.setOnRefreshListener {
             viewModel.refresh()
-            //viewModel.load()
         }
 
         return binding.root

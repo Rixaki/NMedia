@@ -1,7 +1,5 @@
 package ru.netology.nmedia.dto
 
-import androidx.room.Embedded
-
 data class Post(
     val id: Long,
     val author: String,
@@ -11,7 +9,7 @@ data class Post(
     val likedByMe: Boolean = false,
     val likes: Long = 0,
     val shares: Long = 0,
-    var isSaved: Boolean = false,
+    val isSaved: Boolean = false,
     val video: String? = null,
     val attachment: Attachment? = null
 )
@@ -22,7 +20,7 @@ data class Attachment(
     val type: AttachmentType
 )
 
-enum class AttachmentType (val typeName: String) {
+enum class AttachmentType(val typeName: String) {
     IMAGE("image")
 }
 
