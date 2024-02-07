@@ -172,7 +172,7 @@ class PostRepoImpl(
                     draftPostDao.getAll().value?.size?.toLong() ?: 0L
                 val daoSize = postDao.getAll().value?.size?.toLong() ?: 0L
                 val dataSize = data.value?.size?.toLong() ?: 0L
-                draftNewIndex = maxOf(draftDaoSize, daoSize, dataSize).plus(1L)
+                draftNewIndex = (-1L)*(maxOf(draftDaoSize, daoSize, dataSize).plus(1L))
                 draftPostDao.insert(
                     PostEntity.fromDtoToEnt(
                         post.copy(id = draftNewIndex)
