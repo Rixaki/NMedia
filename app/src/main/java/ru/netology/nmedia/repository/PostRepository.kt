@@ -1,11 +1,16 @@
 package ru.netology.nmedia.repository
 
+import CombinedLiveData
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import ru.netology.nmedia.dto.Post
 
 interface PostRepository {
 
     val data: LiveData<List<Post>>
+    val draftData: LiveData<List<Post>>
+    val mergedData: CombinedLiveData
+
     suspend fun uploadDraft(id: Long)
     suspend fun getAll()
 

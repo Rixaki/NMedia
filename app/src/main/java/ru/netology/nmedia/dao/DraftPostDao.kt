@@ -17,6 +17,9 @@ interface DraftPostDao {
     @Query("SELECT * FROM PostEntity WHERE id = :id")
     fun getPostById(id: Long): PostEntity
 
+    @Query("SELECT COUNT(*) FROM PostEntity")
+    fun getDaoSize(): Long
+
     @Upsert
     suspend fun save(post: PostEntity): Long
 

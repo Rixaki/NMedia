@@ -1,13 +1,16 @@
 package ru.netology.nmedia.viewmodel
 
+import android.annotation.SuppressLint
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.db.AppDb
+import ru.netology.nmedia.db.AppDraftDb
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.model.FeedModelState
@@ -26,20 +29,24 @@ private val empty = Post(
 
 //viewmodel exist in 1 Activity!!!
 //class PostViewModel : ViewModel() {
+@SuppressLint("CheckResult")
 class PostViewModel(application: Application) : AndroidViewModel(application) {
     //application extends context!!!
     private val repository: PostRepository =
         PostRepoImpl(
             AppDb.getInstance(application).postDao,
-            AppDb.getInstance(application).draftPostDao
+            AppDraftDb.getInstance(application).draftPostDao
         )
 
     private val privateState = MutableLiveData<FeedModelState>()
     val dataState: LiveData<FeedModelState>
         get() = privateState
 
-    val data: LiveData<FeedModel> = repository.data.map { posts ->
-        FeedModel(posts, posts.isEmpty())
+    val data: LiveData<FeedModel> = repository.mergedData.map { pair ->
+        FeedModel(
+            posts = pair.first,
+            draftPosts = pair.second,
+            empty = pair.first.isEmpty())
     }
 
     val edited = MutableLiveData(empty)
@@ -55,6 +62,8 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     init {
         load()
     }
+
+
 
     fun load() {
         //start loading

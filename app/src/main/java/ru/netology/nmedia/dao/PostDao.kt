@@ -11,11 +11,21 @@ import ru.netology.nmedia.entity.PostEntity
 
 @Dao
 interface PostDao {
-    @Query("SELECT * FROM PostEntity ORDER BY id DESC")
+    //@Query("SELECT * FROM PostEntity ORDER BY id DESC")
+    @Query("""
+            SELECT * FROM PostEntity 
+            ORDER BY
+            CASE id WHEN id < 0 THEN 1 ELSE 0 END DESC,
+            ABS(id) DESC
+            """)
     fun getAll(): LiveData<List<PostEntity>>
+
 
     @Query("SELECT * FROM PostEntity WHERE id = :id")
     fun getPostById(id: Long): PostEntity
+
+    @Query("SELECT COUNT(*) FROM PostEntity")
+    fun getDaoSize(): Long
 
     @Upsert
     suspend fun save(post: PostEntity): Long
@@ -32,6 +42,15 @@ interface PostDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(post: PostEntity)
+
+    /*
+    @Query("""
+       UPDATE PostEntity SET
+                    shares = shares + 1
+                WHERE id = :id
+            """)
+    suspend fun update(post: PostEntity, id: Long = post.id)
+     */
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(posts: List<PostEntity>)

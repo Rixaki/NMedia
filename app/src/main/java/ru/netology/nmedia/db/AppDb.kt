@@ -14,7 +14,6 @@ import ru.netology.nmedia.entity.PostEntity
 @TypeConverters(AttachmentConverter::class)
 abstract class AppDb : RoomDatabase() {
     abstract val postDao: PostDao
-    abstract val draftPostDao: DraftPostDao
 
     companion object {
         @Volatile

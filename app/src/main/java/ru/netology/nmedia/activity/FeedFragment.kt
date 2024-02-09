@@ -120,15 +120,14 @@ class FeedFragment : Fragment() {
 
         viewModel.data.observe(viewLifecycleOwner) { feedModel ->
             val hasNewPost: Boolean =
-                (adapter.currentList.size < feedModel.posts.size
-                        || kotlin.math.abs(adapter.currentList.size - feedModel.posts.size) == 1)
-                        && adapter.itemCount > 0
-            adapter.submitList(feedModel.posts)
+                adapter.currentList.size < (feedModel.posts.size + feedModel.draftPosts.size) && adapter.itemCount > 0
+            adapter.submitList(feedModel.draftPosts + feedModel.posts){
+                if (hasNewPost) {
+                    binding.list.smoothScrollToPosition(0)//submitlist is ansync!!!
+                }
+            }
 
             binding.emptyText.isVisible = feedModel.empty
-            if (hasNewPost) {
-                binding.list.smoothScrollToPosition(0)//submitlist is ansync!!!
-            }
         }
 
         viewModel.dataState.observe(viewLifecycleOwner) { state ->
