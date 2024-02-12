@@ -1,8 +1,7 @@
 package ru.netology.nmedia.repository
 
-import CombinedLiveData2
+import CombinedLiveData
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.map
 import ru.netology.nmedia.api.PostApiService
 import ru.netology.nmedia.dao.DraftPostDao
@@ -58,7 +57,7 @@ class PostRepoImpl(
         }.filter { post -> post.id != 0L }
     }
 
-    override val mergedData = CombinedLiveData2(data, draftData) {
+    override val mergedData = CombinedLiveData(data, draftData) {
             data1, data2 -> data2+data1
     }
 
