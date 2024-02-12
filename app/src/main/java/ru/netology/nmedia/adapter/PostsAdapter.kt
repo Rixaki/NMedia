@@ -20,6 +20,7 @@ interface OnIterationListener {
     fun onShareLtn(post: Post) {}
     fun onEditLtn(post: Post) {}
     fun onRemoveLtn(post: Post) {}
+    fun onCancelDraft(post: Post) {}
     fun onPlayVideoLtn(post: Post) {}
     fun onRootLtn(post: Post) {}
     fun onReuploadLtn(post: Post) {}
@@ -82,6 +83,11 @@ class PostViewHolder(
             unSaved.visibility = if (post.isSaved) View.GONE else View.VISIBLE
             unSaved.setOnClickListener {
                 onIterationListener.onReuploadLtn(post)
+            }
+
+            cancelUnsaved.visibility = if (post.id > 0) unSaved.visibility else View.GONE
+            cancelUnsaved.setOnClickListener {
+                onIterationListener.onCancelDraft(post)
             }
 
             val baseAvaUrl = "http://10.0.2.2:9999/avatars/"

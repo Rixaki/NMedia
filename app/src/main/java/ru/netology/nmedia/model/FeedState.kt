@@ -4,7 +4,6 @@ import ru.netology.nmedia.dto.Post
 
 data class FeedModel(
     val posts: List<Post> = emptyList(),
-    val draftPosts: List<Post> = emptyList(),
     val empty: Boolean = false,
     val sizeOfList: Int = posts.size
 ){

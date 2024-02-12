@@ -90,6 +90,10 @@ class FeedFragment : Fragment() {
                 viewModel.removeById(post.id)
             }
 
+            override fun onCancelDraft(post: Post) {
+                viewModel.cancelDraftById(post.id)
+            }
+
             override fun onPlayVideoLtn(post: Post) {
                 if (!post.video.isNullOrBlank()) {
                     val url = post.video
@@ -120,8 +124,8 @@ class FeedFragment : Fragment() {
 
         viewModel.data.observe(viewLifecycleOwner) { feedModel ->
             val hasNewPost: Boolean =
-                adapter.currentList.size < (feedModel.posts.size + feedModel.draftPosts.size) && adapter.itemCount > 0
-            adapter.submitList(feedModel.draftPosts + feedModel.posts){
+                (adapter.currentList.size < feedModel.posts.size) && adapter.itemCount > 0
+            adapter.submitList(feedModel.posts){
                 if (hasNewPost) {
                     binding.list.smoothScrollToPosition(0)//submitlist is ansync!!!
                 }

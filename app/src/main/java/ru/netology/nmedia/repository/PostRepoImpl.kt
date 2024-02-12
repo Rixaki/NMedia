@@ -1,7 +1,8 @@
 package ru.netology.nmedia.repository
 
-import CombinedLiveData
+import CombinedLiveData2
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.map
 import ru.netology.nmedia.api.PostApiService
 import ru.netology.nmedia.dao.DraftPostDao
@@ -12,7 +13,6 @@ import ru.netology.nmedia.error.ApiError
 import ru.netology.nmedia.error.NetworkError
 import ru.netology.nmedia.error.UnknownError
 import java.io.IOException
-import java.lang.NullPointerException
 
 
 class PostRepoImpl(
@@ -45,6 +45,7 @@ class PostRepoImpl(
     /*
     posts in draftPostDao with id, which exists in postDao aren`t shown in ui,
     because these posts are reserve for cancel edit operations (not released)
+    UPDATE: cancel edit for api posts was released
      */
     override val draftData: LiveData<List<Post>> = draftPostDao.getAll().map { it ->
         it.map { entity ->
@@ -57,15 +58,13 @@ class PostRepoImpl(
         }.filter { post -> post.id != 0L }
     }
 
-    override val mergedData = CombinedLiveData(data, draftData)
+    override val mergedData = CombinedLiveData2(data, draftData) {
+            data1, data2 -> data2+data1
+    }
 
     override suspend fun uploadDraft(id: Long) {
         try {
-            val draftPost = if (id > 0) {
-                postDao.getPostById(id).toDto()
-            } else {
-                draftPostDao.getPostById(id).toDto()
-            }
+            val draftPost = draftPostDao.getPostById(id).toDto()
 
             val response = PostApiService.service
                 .save(if (id > 0) draftPost else draftPost.copy(id = 0L))
@@ -178,6 +177,16 @@ class PostRepoImpl(
         }
     }
 
+    override suspend fun cancelDraftById(id: Long) {
+        try {
+            draftPostDao.removeById(id)
+            postDao.insert(
+                postDao.getPostById(id).copy(isSaved = true))
+        } catch (e: Exception) {
+            throw UnknownError
+        }
+    }
+
     override suspend fun saveWithApi(post: Post) {
         try {
             val response = PostApiService.service.save(post)
@@ -214,6 +223,17 @@ class PostRepoImpl(
                         post.copy(id = post.id, isSaved = false)))//id > 0
             } else {
                 newDraftId = (-1)*(draftPostDao.getDaoSize() + 1L)
+                var draftExistsCounter = 0
+                val draftExistsMaxCounter = 10
+                while (draftExistsCounter <= draftExistsMaxCounter) {
+                    try {
+                        draftPostDao.getPostById(newDraftId)
+                        newDraftId -= 1L
+                        draftExistsCounter += 1
+                    } catch (e: java.lang.NullPointerException) {
+                        break
+                    }
+                }
                 draftPostDao.insert(
                     PostEntity.fromDtoToEnt(
                         post.copy(id = newDraftId, isSaved = false)//id < 0

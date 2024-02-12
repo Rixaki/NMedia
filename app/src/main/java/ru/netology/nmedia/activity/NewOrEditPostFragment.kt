@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
+import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentNewOrEditPostBinding
 import ru.netology.nmedia.util.AndroidUtils
 import ru.netology.nmedia.util.StringArg
@@ -75,7 +77,13 @@ class NewOrEditPostFragment() : Fragment() {
         viewModel.postCreated.observe(viewLifecycleOwner) {
             //viewModel.load()
             AndroidUtils.hideKeyBoard(requireView())
-            findNavController().navigateUp()
+            //findNavController().navigateUp()
+            Snackbar.make(
+                binding.root,
+                getString(R.string.action_saved),
+                Snackbar.LENGTH_SHORT
+            ).show()
+            findNavController().navigate(R.id.feedFragment)
         }
 
         viewModel.postCanceled.observe(viewLifecycleOwner) {

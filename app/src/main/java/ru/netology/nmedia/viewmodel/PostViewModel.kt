@@ -42,11 +42,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     val dataState: LiveData<FeedModelState>
         get() = privateState
 
-    val data: LiveData<FeedModel> = repository.mergedData.map { pair ->
+    val data: LiveData<FeedModel> = repository.mergedData.map { totalList ->
         FeedModel(
-            posts = pair.first,
-            draftPosts = pair.second,
-            empty = pair.first.isEmpty())
+            posts = totalList,
+            empty = totalList.isEmpty())
     }
 
     val edited = MutableLiveData(empty)
@@ -62,8 +61,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     init {
         load()
     }
-
-
 
     fun load() {
         //start loading
@@ -204,13 +201,32 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     fun removeById(id: Long) {
         viewModelScope.launch {
             try {
+                privateState.value = FeedModelState(loading = true)
                 repository.removeById(id)
+                privateState.value = FeedModelState()
                 data.value?.posts?.filter { it.id != id }
             } catch (e: Exception) {
                 saveLocal(id)
                 privateState.value = FeedModelState(
                     error = true,
                     lastErrorAction = "Error with delete post."
+                )
+            }
+        }
+    }
+
+    fun cancelDraftById(id: Long) {
+        viewModelScope.launch {
+            try {
+                privateState.value = FeedModelState(loading = true)
+                repository.cancelDraftById(id)
+                privateState.value = FeedModelState()
+                data.value?.posts?.filter { !((it.id == id) && !it.isSaved) }
+            } catch (e: Exception) {
+                //saveLocal(id)
+                privateState.value = FeedModelState(
+                    error = true,
+                    lastErrorAction = "Error with delete draft."
                 )
             }
         }

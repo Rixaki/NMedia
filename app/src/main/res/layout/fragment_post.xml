@@ -70,10 +70,24 @@
             android:contentDescription="@string/upload_failed"
             android:text="@string/reupload"
             android:textColor="@android:color/black"
-            android:visibility="gone"
+            android:visibility="visible"
             app:icon="@drawable/post_failed_24"
             app:layout_constraintEnd_toEndOf="@+id/menu"
             app:layout_constraintTop_toBottomOf="@id/barrierPostHeadBottom"  />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/cancelUnsaved"
+            style="?attr/materialIconButtonFilledStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/buttonDefaultMarginDim"
+            android:contentDescription="@string/delete_draft"
+            android:visibility="visible"
+            app:backgroundTint="#FE9898"
+            app:icon="@drawable/baseline_cross_48"
+            app:iconTint="@android:color/black"
+            app:layout_constraintEnd_toStartOf="@+id/unSaved"
+            app:layout_constraintTop_toBottomOf="@id/barrierPostHeadBottom" />
 
         <TextView
             android:id="@+id/cardContent"
