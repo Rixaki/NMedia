@@ -3,6 +3,7 @@ package ru.netology.nmedia.activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -19,6 +20,7 @@ import ru.netology.nmedia.adapter.OnIterationListener
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.funcs.countToString
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 
@@ -124,14 +126,74 @@ class FeedFragment : Fragment() {
 
         viewModel.data.observe(viewLifecycleOwner) { feedModel ->
             val hasNewPost: Boolean =
-                (adapter.currentList.size < feedModel.posts.size) && adapter.itemCount > 0
-            adapter.submitList(feedModel.posts){
+                (adapter.currentList.filter { it.isSaved }.size < feedModel.posts.filter { it.isSaved }.size)
+                        && adapter.itemCount > 0
+            val hasNewDraft: Boolean =
+                (adapter.currentList.filter { !it.isSaved }.size < feedModel.posts.filter { !it.isSaved }.size)
+                        && adapter.itemCount > 0
+            val scrollBlock = {
                 if (hasNewPost) {
+                    binding.onlySaved.callOnClick()
+                    binding.list.smoothScrollToPosition(
+                        adapter.currentList.filter { !it.isSaved }.size
+                    )//submitlist is ansync!!!
+                }
+                if (hasNewDraft) {
+                    binding.onlyDrafts.callOnClick()
                     binding.list.smoothScrollToPosition(0)//submitlist is ansync!!!
                 }
             }
+            println("Max id of loaded is ${feedModel.maxId}")
+            adapter.submitList(feedModel.posts, scrollBlock)
 
             binding.emptyText.isVisible = feedModel.empty
+            viewModel.newerCount.value
+        }
+
+        //INITIAL (onlySaved in postsGroupButton) STATE:
+        binding.allPosts.callOnClick()
+
+        //postsGroupButton: singleSelection="true"
+        //postsGroupButton: selectionRequired="true"
+        binding.postsGroupButton.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (!isChecked) {
+                return@addOnButtonCheckedListener
+            }
+            when (checkedId) {
+                R.id.onlySaved -> {
+                    adapter.submitList(viewModel.data.value?.posts?.filter { it.isSaved }
+                        ?: emptyList()){
+                        binding.list.smoothScrollToPosition(0)
+                    }
+                }
+
+                R.id.onlyDrafts -> {
+                    adapter.submitList(viewModel.data.value?.posts?.filter { !it.isSaved }
+                        ?: emptyList()){
+                            binding.list.smoothScrollToPosition(0)
+                    }
+                }
+
+                R.id.allPosts -> {
+                    adapter.submitList(
+                        viewModel.data.value?.posts ?: emptyList()){
+                            binding.list.smoothScrollToPosition(0)
+                    }
+                }
+            }
+        }
+
+        viewModel.newerCount.observe(viewLifecycleOwner) { count ->
+            println(count)
+            binding.freshPosts.text =
+                getString(R.string.fresh_posts, countToString(count.toLong()))
+            binding.freshPosts.visibility = if (count == 0) View.GONE else View.VISIBLE
+        }
+
+        binding.freshPosts.setOnClickListener{
+            viewModel.showAllLoad()//all isShown flags in postDao will true
+            viewModel.newerCount.value = 0//for "Fresh posts" GONE
+            //scrolling will got by viewModel.data.observe
         }
 
         viewModel.dataState.observe(viewLifecycleOwner) { state ->
@@ -162,6 +224,7 @@ class FeedFragment : Fragment() {
 
         binding.swiperefresh.setOnRefreshListener {
             viewModel.refresh()
+            viewModel.newerCount.value = 0//for "Fresh posts" GONE
         }
 
         return binding.root

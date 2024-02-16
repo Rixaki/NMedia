@@ -85,7 +85,8 @@ class PostViewHolder(
                 onIterationListener.onReuploadLtn(post)
             }
 
-            cancelUnsaved.visibility = if (post.id > 0) unSaved.visibility else View.GONE
+            cancelUnsaved.visibility =
+                if (post.id > 0) unSaved.visibility else View.GONE
             cancelUnsaved.setOnClickListener {
                 onIterationListener.onCancelDraft(post)
             }

@@ -1,17 +1,24 @@
 package ru.netology.nmedia.repository
 
-import CombinedLiveData
-import androidx.lifecycle.LiveData
+//import CombinedLiveData
+import kotlinx.coroutines.flow.Flow
 import ru.netology.nmedia.dto.Post
 
 interface PostRepository {
 
-    val data: LiveData<List<Post>>
-    val draftData: LiveData<List<Post>>
-    val mergedData: CombinedLiveData
+    val data: Flow<List<Post>>
+    val draftData: Flow<List<Post>>
+
+    //val mergedData: CombinedLiveData
+    val mergedData: Flow<List<Post>>
 
     suspend fun uploadDraft(id: Long)
     suspend fun getAll()
+
+    fun getNewerCount(id: Long): Flow<Int>
+    fun showAll()
+    fun getMaxIdAmongShown(): Long
+    fun getSizeOfDrafts():Long
 
     suspend fun likeById(id: Long)
     suspend fun unLikeById(id: Long)

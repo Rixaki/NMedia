@@ -1,18 +1,19 @@
 package ru.netology.nmedia.dao
 
-import androidx.lifecycle.LiveData
+//import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
+import kotlinx.coroutines.flow.Flow
 import ru.netology.nmedia.entity.PostEntity
 
 
 @Dao
 interface DraftPostDao {
     @Query("SELECT * FROM PostEntity ORDER BY id DESC")
-    fun getAll(): LiveData<List<PostEntity>>
+    fun getAll(): Flow<List<PostEntity>>
 
     @Query("SELECT * FROM PostEntity WHERE id = :id")
     fun getPostById(id: Long): PostEntity

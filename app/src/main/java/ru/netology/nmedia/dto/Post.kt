@@ -10,6 +10,7 @@ data class Post(
     val likes: Long = 0,
     val shares: Long = 0,
     val isSaved: Boolean = false,
+    val isToShow: Boolean = true,
     val video: String? = null,
     val attachment: Attachment? = null
 )

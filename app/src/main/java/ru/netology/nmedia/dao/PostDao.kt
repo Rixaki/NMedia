@@ -1,28 +1,36 @@
 package ru.netology.nmedia.dao
 
-import androidx.lifecycle.LiveData
+//import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
+import kotlinx.coroutines.flow.Flow
 import ru.netology.nmedia.entity.PostEntity
 
 
 @Dao
 interface PostDao {
     //@Query("SELECT * FROM PostEntity ORDER BY id DESC")
-    @Query("""
+    @Query(
+        """
             SELECT * FROM PostEntity 
             ORDER BY
             CASE id WHEN id < 0 THEN 1 ELSE 0 END DESC,
             ABS(id) DESC
-            """)
-    fun getAll(): LiveData<List<PostEntity>>
-
+            """
+    )
+    fun getAll(): Flow<List<PostEntity>>
 
     @Query("SELECT * FROM PostEntity WHERE id = :id")
     fun getPostById(id: Long): PostEntity
+
+    @Query("SELECT MAX(id) FROM PostEntity WHERE isToShow = 1")
+    fun getMaxIdAmongShown(): Long
+
+    @Query("SELECT id FROM PostEntity WHERE id = :id")
+    fun isIdExists(id: Long): Int //0 or 1 selected items
 
     @Query("SELECT COUNT(*) FROM PostEntity")
     fun getDaoSize(): Long

@@ -5,9 +5,12 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.map
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.db.AppDraftDb
@@ -42,11 +45,22 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     val dataState: LiveData<FeedModelState>
         get() = privateState
 
+
     val data: LiveData<FeedModel> = repository.mergedData.map { totalList ->
         FeedModel(
-            posts = totalList,
-            empty = totalList.isEmpty())
-    }
+            posts = totalList.filter{ it.isToShow },
+            empty = totalList.isEmpty(),
+            maxId = repository.getMaxIdAmongShown()
+        )
+    }.catch { it.printStackTrace() }
+        .asLiveData(Dispatchers.Default)
+    //context = viewModelScope.coroutineContext + Dispatchers.Default
+    //collect{emit(feedModel)} in asLiveData
+
+    val newerCount: MutableLiveData<Int> = data.switchMap {
+        repository.getNewerCount(it.maxId)
+            .asLiveData(Dispatchers.Default)
+    } as MutableLiveData<Int>//mutable for "Fresh posts" GONE after refresh/load
 
     val edited = MutableLiveData(empty)
 
@@ -62,12 +76,13 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         load()
     }
 
-    fun load() {
+    private fun load() {
         //start loading
         privateState.value = (FeedModelState(loading = true))
         viewModelScope.launch {
             try {
                 repository.getAll()
+                newerCount.value = 0//for "Fresh posts" GONE
                 privateState.value = FeedModelState()
             } catch (e: Exception) {
                 privateState.value = FeedModelState(
@@ -76,6 +91,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 )
             }
         }
+    }
+
+    fun showAllLoad() {
+        repository.showAll()//for postDao
     }
 
     fun refresh() {

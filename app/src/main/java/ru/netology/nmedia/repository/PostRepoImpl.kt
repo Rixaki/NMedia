@@ -1,8 +1,14 @@
 package ru.netology.nmedia.repository
 
-import CombinedLiveData
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.map
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import ru.netology.nmedia.api.PostApiService
 import ru.netology.nmedia.dao.DraftPostDao
 import ru.netology.nmedia.dao.PostDao
@@ -12,6 +18,7 @@ import ru.netology.nmedia.error.ApiError
 import ru.netology.nmedia.error.NetworkError
 import ru.netology.nmedia.error.UnknownError
 import java.io.IOException
+import java.lang.Math.abs
 
 
 class PostRepoImpl(
@@ -27,7 +34,7 @@ class PostRepoImpl(
     draftPostDao (as well as) contains edited posts by ui (new posts) with
     id LESS than 0.
      */
-    override val data: LiveData<List<Post>> = postDao.getAll().map {
+    override val data = postDao.getAll().map {
         it.map { entity ->
             try {
                 if (entity.isSaved) {
@@ -39,26 +46,80 @@ class PostRepoImpl(
                 entity.toDto()
             }
         }
-    }
+    }//.flowOn(Dispatchers.Default)//default by viewmodel
 
     /*
     posts in draftPostDao with id, which exists in postDao aren`t shown in ui,
     because these posts are reserve for cancel edit operations (not released)
     UPDATE: cancel edit for api posts was released
      */
-    override val draftData: LiveData<List<Post>> = draftPostDao.getAll().map { it ->
+    override val draftData = draftPostDao.getAll().map { it ->
         it.map { entity ->
-            try {
-                if(postDao.getPostById(entity.id).id == 0L){}//for throwable check
-                entity.copy(id = 0L).toDto()
-            } catch (e: NullPointerException) {
-                entity.toDto()//
+            if (postDao.isIdExists(entity.id) == 0) {
+                entity.toDto()
+            } else {
+                entity.copy(id = 0L).toDto()//will filtered
             }
         }.filter { post -> post.id != 0L }
-    }
+    }.flowOn(Dispatchers.Default)
 
+    /*
     override val mergedData = CombinedLiveData(data, draftData) {
             data1, data2 -> data2+data1
+    }
+     */
+
+    override val mergedData = data.combine(draftData) { dataList, draftList ->
+        draftList.reversed() + dataList
+    }
+
+    override fun getNewerCount(id: Long): Flow<Int> = flow {
+        while (true) {
+            delay(10_000L)
+            val response = PostApiService.service.getNewer(id)
+            if (!response.isSuccessful) {
+                throw ApiError(response.code(), response.message())
+            }
+
+            val body = response.body()
+                ?: throw ApiError(response.code(), response.message())
+            for (postRsp in body) {
+                if (postDao.isIdExists(postRsp.id) == 0) {
+                    postDao.insert(
+                        PostEntity.fromDtoToEnt(postRsp).copy(isToShow = false)
+                    )//insert for not exists id
+                }
+            }
+            emit(body.size)
+        }
+    }
+        .catch { flowOf(value = 0) }
+    //.catch{ e -> throw AppError.from(e) }//it crashing due to throwing
+    //.flowOn(Dispatchers.Default)//default in viewmodel
+    //unactual flow will cancel end break wlile(true)
+
+    override fun showAll() {
+        postDao.getAll().map {
+            it.map { entity ->
+                entity.copy(isToShow = true).toDto()
+            }
+        }
+    }
+
+    override fun getMaxIdAmongShown(): Long {
+        return try {
+            postDao.getMaxIdAmongShown()
+        } catch (e: NullPointerException) {
+            0L
+        }
+    }
+
+    override fun getSizeOfDrafts(): Long {
+        return try {
+            draftPostDao.getDaoSize()
+        } catch (e: Exception) {
+            0L
+        }
     }
 
     override suspend fun uploadDraft(id: Long) {
@@ -98,7 +159,8 @@ class PostRepoImpl(
                 response.message()
             )
             val postsEnt = body.map {
-                PostEntity.fromDtoToEnt(it).copy(isSaved = true)
+                PostEntity.fromDtoToEnt(it)
+                    .copy(isSaved = true, isToShow = true)
             }
             postDao.insert(postsEnt) //update local db
         } catch (e: IOException) {
@@ -180,7 +242,8 @@ class PostRepoImpl(
         try {
             draftPostDao.removeById(id)
             postDao.insert(
-                postDao.getPostById(id).copy(isSaved = true))
+                postDao.getPostById(id).copy(isSaved = true)
+            )
         } catch (e: Exception) {
             throw UnknownError
         }
@@ -216,26 +279,30 @@ class PostRepoImpl(
             var newDraftId = 0L
             if (post.id != 0L) {
                 postDao.insert(
-                    postDao.getPostById(post.id).copy(isSaved = false))//vanish from ui without changes
+                    postDao.getPostById(post.id).copy(isSaved = false)
+                )//vanish from ui without changes
                 draftPostDao.insert(
                     PostEntity.fromDtoToEnt(
-                        post.copy(id = post.id, isSaved = false)))//id > 0
+                        post.copy(id = post.id, isSaved = false)
+                    )
+                )//id > 0
             } else {
-                newDraftId = (-1)*(draftPostDao.getDaoSize() + 1L)
-                var draftExistsCounter = 0
-                val draftExistsMaxCounter = 10
-                while (draftExistsCounter <= draftExistsMaxCounter) {
-                    try {
-                        draftPostDao.getPostById(newDraftId)
+                newDraftId = (-1)*(getSizeOfDrafts() + 1L)
+                val draftExistsMaxCounter = 20
+                loop@ while (true) {
+                    //IDEA WARNING about null condition IS FAKE
+                    if (draftPostDao.getPostById(newDraftId) == null){
+                        break@loop
+                    } else {
                         newDraftId -= 1L
-                        draftExistsCounter += 1
-                    } catch (e: java.lang.NullPointerException) {
-                        break
                     }
                 }
+
                 draftPostDao.insert(
                     PostEntity.fromDtoToEnt(
-                        post.copy(id = newDraftId, isSaved = false)//id < 0
+                        post.copy(
+                            id = newDraftId % draftExistsMaxCounter,
+                            isSaved = false)//id < 0
                     )
                 )
             }
@@ -249,7 +316,7 @@ class PostRepoImpl(
                 response.message()
             )
             postDao.removeById(post.id)
-            postDao.insert(PostEntity.fromDtoToEnt(body.copy(isSaved = true)))
+            postDao.insert(PostEntity.fromDtoToEnt(body.copy(isSaved = true, isToShow = true)))
             draftPostDao.removeById(if (post.id == 0L) newDraftId else post.id)
         } catch (e: Exception) {
             when (e) {

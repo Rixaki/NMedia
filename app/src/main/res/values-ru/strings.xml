@@ -35,4 +35,6 @@
     <string name="reupload">Переотправить черновик?</string>
     <string name="delete_draft">Удалить черновик сохраненного поста.</string>
     <string name="action_saved">Результат действия сохранен.</string>
+    <string name="fresh_posts">Свежие посты (%1$s)</string>
+    <string name="loading">Загрузка...</string>
 </resources>

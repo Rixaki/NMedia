@@ -6,7 +6,6 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import ru.netology.nmedia.dao.DraftPostDao
-import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.entity.AttachmentConverter
 import ru.netology.nmedia.entity.PostEntity
 
@@ -26,7 +25,11 @@ abstract class AppDraftDb : RoomDatabase() {
         }
 
         private fun buildDatabase(context: Context) =
-            Room.databaseBuilder(context, AppDraftDb::class.java, "appDraftDb.db")
+            Room.databaseBuilder(
+                context,
+                AppDraftDb::class.java,
+                "appDraftDb.db"
+            )
                 .fallbackToDestructiveMigration()
                 .allowMainThreadQueries()
                 .build()

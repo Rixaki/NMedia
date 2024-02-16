@@ -20,6 +20,7 @@ data class PostEntity(
     val likes: Long = 0,
     val shares: Long = 0,
     val isSaved: Boolean = false,
+    val isToShow: Boolean = true,
     val video: String? = null,
     @Embedded
     val attachment: Attachment? = null
@@ -35,6 +36,7 @@ data class PostEntity(
         shares = shares,
         isSaved = isSaved,
         video = video,
+        isToShow = isToShow,
         attachment = attachment
     )
 
@@ -51,6 +53,7 @@ data class PostEntity(
                 shares = shares,
                 isSaved = isSaved,
                 video = video,
+                isToShow = isToShow,
                 attachment = attachment
             )
         }

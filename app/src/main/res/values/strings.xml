@@ -34,4 +34,6 @@
     <string name="reupload">Reupload draft?</string>
     <string name="delete_draft">Delete draft of saved post.</string>
     <string name="action_saved">Action result was saved.</string>
+    <string name="fresh_posts">Fresh posts (%1$s)</string>
+    <string name="loading">Loading...</string>
 </resources>
