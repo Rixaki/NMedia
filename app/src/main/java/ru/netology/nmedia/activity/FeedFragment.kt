@@ -12,7 +12,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -59,6 +58,24 @@ class FeedFragment : Fragment() {
         val viewModel: PostViewModel by activityViewModels()
         val authModel by viewModels<AuthViewModel>()
 
+        /*
+        fun imitateClick(idButton: Int){
+            when(idButton){
+                R.id.onlySaved -> {
+                    binding.postsGroupButton.check(R.id.onlySaved)
+                    viewModel.onlySavedShow()
+                }
+                R.id.onlyDrafts->{
+                    binding.postsGroupButton.check(R.id.onlyDrafts)
+                    viewModel.onlyDraftShow()
+                }
+                R.id.allPosts->{
+                    binding.postsGroupButton.check(R.id.allPosts)
+                    viewModel.noFilterShow()
+                }
+            }
+        }
+         */
 
         //TODO: WITHOUT addMenuProvider MENU NOT SHOW
         requireActivity().addMenuProvider(object : MenuProvider {
@@ -198,33 +215,47 @@ class FeedFragment : Fragment() {
         binding.list.adapter = adapter
 
         viewModel.data.observe(viewLifecycleOwner) { feedModel ->
-            val hasNewPost: Boolean =
+            /*
+            val hasNewSavedPost: Boolean =
                 (adapter.currentList.filter { it.isSaved }.size < feedModel.posts.filter { it.isSaved }.size)
                         && adapter.itemCount > 0
             val hasNewDraft: Boolean =
                 (adapter.currentList.filter { !it.isSaved }.size < feedModel.posts.filter { !it.isSaved }.size)
                         && adapter.itemCount > 0
+            val hasNewPost: Boolean =
+                (adapter.currentList.size < feedModel.posts.size)
+                        && adapter.itemCount > 0
+
             val scrollBlock = {
-                if (hasNewPost) {
-                    binding.onlySaved.callOnClick()
+                if (hasNewSavedPost) {
+                    imitateClick(R.id.onlySaved)
+
                     binding.list.smoothScrollToPosition(
                         adapter.currentList.filter { !it.isSaved }.size
                     )//submitlist is ansync!!!
                 }
                 if (hasNewDraft) {
-                    binding.onlyDrafts.callOnClick()
+                    imitateClick(R.id.onlyDrafts)
+                    binding.postsGroupButton.check(R.id.onlyDrafts)
+                    viewModel.onlyDraftShow()
+
                     binding.list.smoothScrollToPosition(0)//submitlist is ansync!!!
                 }
             }
+             */
+
             println("Max id of loaded is ${feedModel.maxId}")
-            adapter.submitList(feedModel.posts, scrollBlock)
+            adapter.submitList(feedModel.posts) {
+                binding.list.smoothScrollToPosition(0)
+            }
 
             binding.emptyText.isVisible = feedModel.empty
             viewModel.newerCount.value
         }
 
         //INITIAL (onlySaved in postsGroupButton) STATE:
-        binding.allPosts.callOnClick()
+        //repository.getAll() get with isSaved,isToShow=true (onlySaved)
+        binding.postsGroupButton.check(R.id.onlySaved)
 
         //postsGroupButton: singleSelection="true"
         //postsGroupButton: selectionRequired="true"
@@ -235,7 +266,7 @@ class FeedFragment : Fragment() {
             when (checkedId) {
                 R.id.onlySaved -> {
                     viewModel.onlySavedShow()
-                        binding.list.smoothScrollToPosition(0)
+                    binding.list.smoothScrollToPosition(0)
                 }
 
                 R.id.onlyDrafts -> {
@@ -259,9 +290,12 @@ class FeedFragment : Fragment() {
         }
 
         binding.freshPosts.setOnClickListener {
-            println("FRESH POSTS BUTTON CLICKED")
             viewModel.showAllLoad()//all isShown flags in postDao will true
-            binding.onlySaved.callOnClick()
+
+            //imitateClick(R.id.onlySaved)
+            binding.postsGroupButton.check(R.id.onlySaved)
+            viewModel.onlySavedShow()
+
             viewModel.newerCount.value = 0//for "Fresh posts" GONE
             //scrolling will got by viewModel.data.observe
         }

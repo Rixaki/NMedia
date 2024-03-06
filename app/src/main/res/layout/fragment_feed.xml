@@ -71,6 +71,29 @@
             android:visibility="gone"
             app:constraint_referenced_ids="retry, error_text" />
 
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swiperefresh"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:layout_editor_absoluteY="75dp">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/list"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_alignParentTop="true"
+                android:forceHasOverlappingRendering="true"
+                android:paddingTop="?attr/actionBarSize"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:listitem="@layout/fragment_post" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -87,7 +110,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="top|center"
         android:paddingTop="@dimen/defaultMargin"
-        android:translationZ="1dp"
         app:layout_anchorGravity="top"
         app:selectionRequired="true"
         app:singleSelection="true">
@@ -117,41 +139,23 @@
             app:icon="@drawable/baseline_all_inbox_48" />
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
-    <Button
-        android:id="@+id/freshPosts"
+    <com.google.android.material.button.MaterialButtonToggleGroup
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center"
-        android:layout_margin="@dimen/defaultMargin"
-        android:contentDescription="@string/fresh_posts"
-        android:text="@string/fresh_posts"
-        android:translationZ="2dp"
-        android:visibility="gone"
-        app:icon="@drawable/baseline_arrow_upward_48"
         app:layout_anchor="@id/postsGroupButton"
         app:layout_anchorGravity="bottom|center"
-        app:layout_constraintTop_toBottomOf="@id/postsGroupButton" />
+        app:layout_constraintTop_toBottomOf="@id/postsGroupButton">
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/freshPosts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/fresh_posts"
+        android:text="@string/fresh_posts"
+        android:visibility="gone"
+        app:icon="@drawable/baseline_arrow_upward_48" />
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swiperefresh"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_anchor="@+id/constraintLayout"
-        app:layout_anchorGravity="center">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/list"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_alignParentTop="true"
-            android:paddingTop="?attr/actionBarSize"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:listitem="@layout/fragment_post" />
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </com.google.android.material.button.MaterialButtonToggleGroup>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

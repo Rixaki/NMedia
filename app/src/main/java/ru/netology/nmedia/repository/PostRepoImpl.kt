@@ -142,7 +142,10 @@ class PostRepoImpl(
             for (postRsp in body) {
                 if (postDao.isIdExists(postRsp.id) == 0) {
                     postDao.insert(
-                        PostEntity.fromDtoToEnt(postRsp).copy(isToShow = false)
+                        PostEntity.fromDtoToEnt(postRsp).copy(
+                            isToShow = false,
+                            isInShowFilter = true,
+                        )
                     )//insert for not exists id
                 }
             }
@@ -380,7 +383,8 @@ class PostRepoImpl(
                 PostEntity.fromDtoToEnt(
                     body.copy(
                         isSaved = true,
-                        isToShow = true
+                        isToShow = true,
+                        isInShowFilter = true,
                     )
                 )
             )

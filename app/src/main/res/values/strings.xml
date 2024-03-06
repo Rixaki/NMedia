@@ -33,7 +33,7 @@
     <string name="upload_failed">Post upload failed.</string>
     <string name="reupload">Reupload draft?</string>
     <string name="delete_draft">Delete draft of saved post.</string>
-    <string name="action_saved">Action result was saved. See it in list post page.</string>
+    <string name="action_saved">Action result was saved. Check it in Saved list.</string>
     <string name="fresh_posts">Fresh posts (%1$s)</string>
     <string name="loading">Loading...</string>
     <string name="sign_in">Sign In</string>

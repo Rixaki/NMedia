@@ -12,7 +12,7 @@ data class Post(
     val shares: Long = 0,
     val isSaved: Boolean = false,
     val isToShow: Boolean = true,
-    val isInShowFilter: Boolean = true,
+    val isInShowFilter: Boolean = isSaved,
     val video: String? = null,
     val attachment: Attachment? = null,
 

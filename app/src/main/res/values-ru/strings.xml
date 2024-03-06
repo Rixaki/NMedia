@@ -34,7 +34,7 @@
     <string name="upload_failed">Отправка сообщения не удалась.</string>
     <string name="reupload">Переотправить черновик?</string>
     <string name="delete_draft">Удалить черновик сохраненного поста.</string>
-    <string name="action_saved">Результат действия сохранен, исследуйте его на странице со списком постов.  </string>
+    <string name="action_saved">Результат действия сохранен, проверьте его в списке сохраненных постов.</string>
     <string name="fresh_posts">Свежие посты (%1$s)</string>
     <string name="loading">Загрузка...</string>
     <string name="sign_in">Войти</string>

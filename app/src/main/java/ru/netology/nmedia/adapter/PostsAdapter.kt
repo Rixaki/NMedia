@@ -170,7 +170,6 @@ class PostViewHolder(
             }
 
             postConstrainLayout.setOnClickListener {
-                println("POST ROOT CLICKED")
                 onIterationListener.onRootLtn(post)
             }
 

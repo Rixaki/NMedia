@@ -29,7 +29,14 @@ interface PostDao {
     @Query("SELECT MAX(id) FROM PostEntity WHERE isToShow = 1")
     fun getMaxIdAmongShown(): Long
 
-    @Query("UPDATE PostEntity SET isToShow = 1")
+    @Query(
+        """
+            UPDATE PostEntity SET 
+                isToShow = 1, 
+                isSaved = 1 
+            WHERE isToShow = 0
+        """
+    )
     fun showAllFresh(): Unit
 
     @Query("UPDATE PostEntity SET isInShowFilter = isSaved")

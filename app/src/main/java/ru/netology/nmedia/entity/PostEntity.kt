@@ -22,7 +22,7 @@ data class PostEntity(
     val shares: Long = 0,
     val isSaved: Boolean = false,
     val isToShow: Boolean = true,
-    val isInShowFilter: Boolean = true,
+    val isInShowFilter: Boolean = isSaved,
     val video: String? = null,
 
     val ownedByMe: Boolean = false,

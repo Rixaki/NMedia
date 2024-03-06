@@ -204,7 +204,11 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                     saveLocal(editedPost.id)
                     privateState.value = FeedModelState(
                         error = true,
-                        lastErrorAction = "Error with add/edit post."
+                        lastErrorAction =
+                        if (editedPost.id == 0L)
+                            "Error with add post. Check drafts."
+                        else
+                            "Error with edit post."
                     )
                     privatePostCanceled.postValue(Unit)
                 }
