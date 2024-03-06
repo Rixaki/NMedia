@@ -18,6 +18,15 @@ interface DraftPostDao {
     @Query("SELECT * FROM PostEntity WHERE id = :id")
     fun getPostById(id: Long): PostEntity
 
+    @Query("UPDATE PostEntity SET isInShowFilter = isSaved")
+    fun onlySavedShow(): Unit
+
+    @Query("UPDATE PostEntity SET isInShowFilter = NOT(isSaved)")
+    fun onlyDraftShow(): Unit
+
+    @Query("UPDATE PostEntity SET isInShowFilter = 1")
+    fun noFilterShow(): Unit
+
     @Query("SELECT COUNT(*) FROM PostEntity")
     fun getDaoSize(): Long
 

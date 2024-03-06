@@ -1,18 +1,24 @@
 package ru.netology.nmedia.adapter
 
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import androidx.core.net.toFile
+import androidx.core.net.toUri
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestOptions
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentPostBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.funcs.countToString
 import ru.netology.nmedia.util.load
+import ru.netology.nmedia.util.loadThrowable
 
 
 interface OnIterationListener {
@@ -23,6 +29,7 @@ interface OnIterationListener {
     fun onCancelDraft(post: Post) {}
     fun onPlayVideoLtn(post: Post) {}
     fun onRootLtn(post: Post) {}
+    fun onAttachmentLtn(post: Post) {}
     fun onReuploadLtn(post: Post) {}
 }
 
@@ -116,7 +123,7 @@ class PostViewHolder(
             }
 
             if (post.attachment != null) {
-                val baseAttUrl = "http://10.0.2.2:9999/images/"
+                val baseAttUrl = "http://10.0.2.2:9999/media/"
                 attachmentIv.visibility = View.VISIBLE
 
                 with(post.attachment) {
@@ -125,10 +132,27 @@ class PostViewHolder(
                         options = RequestOptions().fitCenter(),
                         toFullWidth = true
                     )
+                    /*
+                    try {
+                        attachmentIv.loadThrowable(
+                            url = baseAttUrl + this.url,
+                            options = RequestOptions().fitCenter(),
+                            toFullWidth = true
+                        )
+                    } catch (e: GlideException) {
+                        println("setimageuri")
+                        attachmentIv.setImageURI(this.url.toUri())
+                    }
+                     */
+
                     attachmentIv.contentDescription = this.description
                 }
             } else {
                 attachmentIv.visibility = View.GONE
+            }
+
+            attachmentIv.setOnClickListener {
+                onIterationListener.onAttachmentLtn(post)
             }
 
             videoWallpaper.setOnClickListener {
@@ -146,12 +170,16 @@ class PostViewHolder(
             }
 
             postConstrainLayout.setOnClickListener {
+                println("POST ROOT CLICKED")
                 onIterationListener.onRootLtn(post)
             }
+
+            menu.isVisible = post.ownedByMe
 
             menu.setOnClickListener {
                 PopupMenu(it.context, it).apply {
                     inflate(R.menu.options_post)
+                    menu.setGroupVisible(R.id.owned, post.ownedByMe)
                     setOnMenuItemClickListener { menuItem ->
                         when (menuItem.itemId) {
                             R.id.edit -> {

@@ -1,5 +1,7 @@
 package ru.netology.nmedia.activity
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
@@ -7,17 +9,25 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
+import ru.netology.nmedia.activity.AttachmentFragment.Companion.urlArg
 import ru.netology.nmedia.activity.NewOrEditPostFragment.Companion.textArg
 import ru.netology.nmedia.adapter.OnIterationListener
 import ru.netology.nmedia.adapter.PostViewHolder
 import ru.netology.nmedia.databinding.FragmentPostBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.util.LongArg
+import ru.netology.nmedia.viewmodel.AuthViewModel
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 
@@ -38,6 +48,8 @@ class PostFragment : Fragment() {
         val viewModel: PostViewModel by activityViewModels()
         //println("vm - $viewModel")
 
+        val authModel by viewModels<AuthViewModel>()
+
         val binding =
             FragmentPostBinding.inflate(layoutInflater, container, false)
 
@@ -45,11 +57,21 @@ class PostFragment : Fragment() {
 
         //val adapter = PostsAdapter(object : OnIterationListener {
         val viewHolder = PostViewHolder(binding, object : OnIterationListener {
+            @SuppressLint("ResourceType")
             override fun onLikeLtn(post: Post) {
-                if (post.likedByMe) {
-                    viewModel.unLikeById(post.id)
+                if (authModel.authenticated) {
+                    if (post.likedByMe) {
+                        viewModel.unLikeById(post.id)
+                    } else {
+                        viewModel.likeById(post.id)
+                    }
                 } else {
-                    viewModel.likeById(post.id)
+                    Toast.makeText(
+                        requireContext(),
+                        "Sign In for like post.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    findNavController().navigate(R.layout.fragment_sign_in)
                 }
             }
 
@@ -86,10 +108,6 @@ class PostFragment : Fragment() {
                 findNavController().navigateUp()
             }
 
-            override fun onReuploadLtn(post: Post) {
-                viewModel.saveLocal(post.id)
-            }
-
             override fun onPlayVideoLtn(post: Post) {
                 if (!post.video.isNullOrBlank()) {
                     val url = post.video
@@ -106,6 +124,20 @@ class PostFragment : Fragment() {
                     }
                 }
             }
+
+            override fun onAttachmentLtn(post: Post) {
+                findNavController().navigate(
+                    R.id.action_feedFragment_to_attachmentFragment,
+                    Bundle().apply {
+                        if (post.attachment != null) {
+                            urlArg = post.attachment.url
+                        }
+                    })
+            }
+
+            override fun onReuploadLtn(post: Post) {
+                viewModel.saveLocal(post.id)
+            }
         })// val viewHolder
 
         val posts = viewModel.data.value?.posts
@@ -115,6 +147,31 @@ class PostFragment : Fragment() {
         } else {
             viewHolder.bind(post)
         }
+
+        val startForProfileImageResult =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+                val resultCode = result.resultCode
+                val data = result.data
+
+                if (resultCode == Activity.RESULT_OK) {
+                    //Image Uri will not be null for RESULT_OK
+                    val fileUri = data?.data!!
+
+                    binding.attachmentIv.setImageURI(fileUri)
+                } else if (resultCode == ImagePicker.RESULT_ERROR) {
+                    Snackbar.make(
+                        binding.root,
+                        ImagePicker.getError(data),
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                } else {
+                    Snackbar.make(
+                        binding.root,
+                        "Task Cancelled",
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                }
+            }
 
         /*
         viewModel.data.observe(viewLifecycleOwner) { posts ->
@@ -128,5 +185,5 @@ class PostFragment : Fragment() {
         */
 
         return binding.root
-    }
+    }//onCreateView
 }

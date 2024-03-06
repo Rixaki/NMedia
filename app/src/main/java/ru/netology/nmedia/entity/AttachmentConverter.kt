@@ -7,7 +7,7 @@ import ru.netology.nmedia.dto.AttachmentType
 
 class AttachmentConverter {
     @TypeConverter
-    fun fromEntAttachment(attEnt: AttachmentEntity): Attachment {
+    fun fromEntAttachment(attEnt: AttachmentEmbeddable): Attachment {
         return Attachment(
             url = attEnt.url,
             description = attEnt.description,
@@ -16,8 +16,8 @@ class AttachmentConverter {
     }
 
     @TypeConverter
-    fun toEntAttachment(att: Attachment): AttachmentEntity {
-        return AttachmentEntity(
+    fun toEntAttachment(att: Attachment): AttachmentEmbeddable {
+        return AttachmentEmbeddable(
             url = att.url,
             description = att.description,
             type = toEntAttachmentType(att.type)

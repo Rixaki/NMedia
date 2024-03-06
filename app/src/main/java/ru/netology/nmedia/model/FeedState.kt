@@ -6,9 +6,7 @@ data class FeedModel(
     val posts: List<Post> = emptyList(),
     val empty: Boolean = false,
     val maxId: Long = 0L
-) {
-
-} // db
+)
 
 data class FeedModelState(
     val loading: Boolean = false,

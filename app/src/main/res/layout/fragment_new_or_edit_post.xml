@@ -6,17 +6,132 @@
     android:layout_height="match_parent"
     tools:context=".activity.NewOrEditPostFragment">
 
-    <EditText
-        android:id="@+id/content"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="top"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="@tools:sample/lorem[35]" />
+        android:layout_height="wrap_content">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="?attr/actionBarSize">
+
+
+            <EditText
+                android:id="@+id/content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="top"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="@tools:sample/lorem[275]" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/newAttachmentMedia"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:visibility="gone"
+                    tools:srcCompat="@tools:sample/avatars[2]" />
+
+                <Button
+                    android:id="@+id/clearPhoto"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|center"
+                    android:text="Clear image"
+                    android:textColor="?colorOnPrimary"
+                    android:visibility="gone"
+                    app:icon="@drawable/baseline_cross_48"
+                    app:iconTint="?colorOnPrimary"
+                    app:layout_anchor="@id/newAttachmentMedia" />
+
+            </FrameLayout>
+        </LinearLayout>
+    </ScrollView>
+
+
+    <LinearLayout
+        android:id="@+id/bottomAppBar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_gravity="bottom"
+        android:background="?colorPrimary"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/save"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="?attr/actionBarSize"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:contentDescription="@string/save_button_description"
+            app:icon="@drawable/baseline_check_48"
+            app:iconGravity="textStart"
+            app:iconTint="?colorOnPrimary" />
+
+        <Button
+            android:id="@+id/cancel_button"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="?attr/actionBarSize"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:backgroundTint="?colorOnPrimary"
+            android:contentDescription="@string/cancel_post_text"
+            android:insetLeft="10dp"
+            android:insetTop="10dp"
+            android:insetRight="10dp"
+            android:insetBottom="10dp"
+            app:icon="@drawable/baseline_cross_48"
+            app:iconGravity="textStart"
+            app:iconTint="?colorPrimary"
+            app:layout_anchor="@id/bottomAppBar" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_weight="101" />
+
+        <Button
+            android:id="@+id/takePhoto"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="?attr/actionBarSize"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:contentDescription="Take photo"
+            app:icon="@drawable/baseline_photo_camera_48"
+            app:iconGravity="textStart"
+            app:iconTint="?colorOnPrimary"
+            app:layout_anchor="@id/bottomAppBar" />
+
+        <Button
+            android:id="@+id/gallery"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="?attr/actionBarSize"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:contentDescription="Take picture from gallery"
+            app:icon="@drawable/baseline_gallery_48"
+            app:iconGravity="textStart"
+            app:iconTint="?colorOnPrimary"
+            app:layout_anchor="@id/bottomAppBar" />
+
+
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <!--in coordinator layout (last blocks)
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/bottomAppBar"
         style="@style/ThemeOverlay.Material3.BottomAppBar"
@@ -51,4 +166,5 @@
         app:layout_anchor="@id/bottomAppBar2"
         app:srcCompat="@drawable/baseline_cross_48" />
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+        -->

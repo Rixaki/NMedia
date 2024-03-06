@@ -29,6 +29,18 @@ interface PostDao {
     @Query("SELECT MAX(id) FROM PostEntity WHERE isToShow = 1")
     fun getMaxIdAmongShown(): Long
 
+    @Query("UPDATE PostEntity SET isToShow = 1")
+    fun showAllFresh(): Unit
+
+    @Query("UPDATE PostEntity SET isInShowFilter = isSaved")
+    fun onlySavedShow(): Unit
+
+    @Query("UPDATE PostEntity SET isInShowFilter = NOT(isSaved)")
+    fun onlyDraftShow(): Unit
+
+    @Query("UPDATE PostEntity SET isInShowFilter = 1")
+    fun noFilterShow(): Unit
+
     @Query("SELECT id FROM PostEntity WHERE id = :id")
     fun isIdExists(id: Long): Int //0 or 1 selected items
 

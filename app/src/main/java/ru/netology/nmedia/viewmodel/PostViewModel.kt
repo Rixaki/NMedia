@@ -2,6 +2,7 @@ package ru.netology.nmedia.viewmodel
 
 import android.annotation.SuppressLint
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,16 +11,21 @@ import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.db.AppDraftDb
+import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.model.FeedModelState
+import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.repository.PostRepoImpl
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.util.SingleLiveEvent
+import java.io.File
 
 private val empty = Post(
     id = 0,
@@ -46,13 +52,20 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         get() = privateState
 
 
-    val data: LiveData<FeedModel> = repository.mergedData.map { totalList ->
-        FeedModel(
-            posts = totalList.filter{ it.isToShow },
-            empty = totalList.isEmpty(),
-            maxId = repository.getMaxIdAmongShown()
-        )
-    }.catch { it.printStackTrace() }
+    val data: LiveData<FeedModel> = AppAuth.getInstance()
+        .authState
+        .flatMapLatest { (myId, _, _) ->
+            repository.mergedData.map { totalList ->
+                FeedModel(
+                    posts = totalList
+                        .map { it.copy(ownedByMe = it.authorId == myId) }
+                        .filter { it.isToShow && it.isInShowFilter },
+                    empty = totalList.isEmpty(),
+                    maxId = repository.getMaxIdAmongShown()
+                )
+            }
+        }
+        .catch { it.printStackTrace() }
         .asLiveData(Dispatchers.Default)
     //context = viewModelScope.coroutineContext + Dispatchers.Default
     //collect{emit(feedModel)} in asLiveData
@@ -63,6 +76,16 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     } as MutableLiveData<Int>//mutable for "Fresh posts" GONE after refresh/load
 
     val edited = MutableLiveData(empty)
+
+    private val noPhoto = PhotoModel()
+
+    private val privatePhoto = MutableLiveData(noPhoto)
+    val photo: LiveData<PhotoModel>
+        get() = privatePhoto
+
+    fun changePhoto(uri: Uri?, file: File?) {
+        privatePhoto.value = PhotoModel(uri, file)
+    }
 
     private val privatePostCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
@@ -91,6 +114,18 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 )
             }
         }
+    }
+
+    fun onlySavedShow() {
+        repository.onlySavedShow()
+    }
+
+    fun onlyDraftShow() {
+        repository.onlyDraftShow()
+    }
+
+    fun noFilterShow() {
+        repository.noFilterShow()
     }
 
     fun showAllLoad() {
@@ -153,7 +188,17 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         edited.value?.let { editedPost ->
             viewModelScope.launch {
                 try {
-                    repository.saveWithDb(editedPost)
+                    when (privatePhoto.value) {
+                        noPhoto -> {
+                            //println("no file")
+                            repository.saveWithDb(editedPost)
+                        }
+
+                        else -> privatePhoto.value?.file?.let { file ->
+                            //println("name: ${file.name}")
+                            repository.saveWithDb(editedPost, MediaUpload(file))
+                        }
+                    }
                     privatePostCreated.postValue(Unit)
                 } catch (e: Exception) {
                     saveLocal(editedPost.id)
@@ -166,6 +211,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
         edited.postValue(empty)
+        privatePhoto.postValue(noPhoto)
     }
 
     fun edit(post: Post) {
@@ -175,6 +221,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     fun cancelEdit() {
         edited.value = empty
         privatePostCanceled.postValue(Unit)
+    }
+
+    fun clearPhoto() {
+        privatePhoto.value = null
     }
 
     fun likeById(id: Long) {

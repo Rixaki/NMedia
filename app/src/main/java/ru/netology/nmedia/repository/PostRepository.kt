@@ -2,6 +2,8 @@ package ru.netology.nmedia.repository
 
 //import CombinedLiveData
 import kotlinx.coroutines.flow.Flow
+import ru.netology.nmedia.dto.Media
+import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
 
 interface PostRepository {
@@ -15,10 +17,14 @@ interface PostRepository {
     suspend fun uploadDraft(id: Long)
     suspend fun getAll()
 
+    fun onlySavedShow()
+    fun onlyDraftShow()
+    fun noFilterShow()
+
     fun getNewerCount(id: Long): Flow<Int>
     fun showAll()
     fun getMaxIdAmongShown(): Long
-    fun getSizeOfDrafts():Long
+    fun getSizeOfDrafts(): Long
 
     suspend fun likeById(id: Long)
     suspend fun unLikeById(id: Long)
@@ -27,6 +33,9 @@ interface PostRepository {
 
     suspend fun saveWithApi(post: Post)
     suspend fun saveWithDb(post: Post)
+
+    suspend fun saveWithDb(post: Post, upload: MediaUpload?)
+    suspend fun upload(upload: MediaUpload): Media
 
     /*
         fun getAll(): List<Post>

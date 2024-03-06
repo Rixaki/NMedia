@@ -9,16 +9,21 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import ru.netology.nmedia.api.PostApiService
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.dao.DraftPostDao
 import ru.netology.nmedia.dao.PostDao
+import ru.netology.nmedia.dto.Attachment
+import ru.netology.nmedia.dto.AttachmentType
+import ru.netology.nmedia.dto.Media
+import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.error.ApiError
 import ru.netology.nmedia.error.NetworkError
 import ru.netology.nmedia.error.UnknownError
 import java.io.IOException
-import java.lang.Math.abs
 
 
 class PostRepoImpl(
@@ -73,10 +78,61 @@ class PostRepoImpl(
         draftList.reversed() + dataList
     }
 
+    override fun onlySavedShow() {
+        postDao.onlySavedShow()
+        draftPostDao.onlySavedShow()
+        /*
+        postDao.getAll().map {
+            it.map { entity ->
+                entity.copy(isInShowFilter = entity.isSaved).toDto()
+            }
+        }
+        draftPostDao.getAll().map {
+            it.map { entity ->
+                entity.copy(isInShowFilter = entity.isSaved).toDto()
+            }
+        }
+         */
+    }
+
+    override fun onlyDraftShow() {
+        postDao.onlyDraftShow()
+        draftPostDao.onlyDraftShow()
+        /*
+        postDao.getAll().map {
+            it.map { entity ->
+                entity.copy(isInShowFilter = !entity.isSaved).toDto()
+            }
+        }
+        draftPostDao.getAll().map {
+            it.map { entity ->
+                entity.copy(isInShowFilter = !entity.isSaved).toDto()
+            }
+        }
+         */
+    }
+
+    override fun noFilterShow() {
+        postDao.noFilterShow()
+        draftPostDao.noFilterShow()
+        /*
+        postDao.getAll().map {
+            it.map { entity ->
+                entity.copy(isInShowFilter = true).toDto()
+            }
+        }
+        draftPostDao.getAll().map {
+            it.map { entity ->
+                entity.copy(isInShowFilter = true).toDto()
+            }
+        }
+         */
+    }
+
     override fun getNewerCount(id: Long): Flow<Int> = flow {
         while (true) {
             delay(10_000L)
-            val response = PostApiService.service.getNewer(id)
+            val response = ApiService.service.getNewer(id)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -99,11 +155,14 @@ class PostRepoImpl(
     //unactual flow will cancel end break wlile(true)
 
     override fun showAll() {
+        postDao.showAllFresh()
+        /*
         postDao.getAll().map {
             it.map { entity ->
                 entity.copy(isToShow = true).toDto()
             }
         }
+         */
     }
 
     override fun getMaxIdAmongShown(): Long {
@@ -126,7 +185,7 @@ class PostRepoImpl(
         try {
             val draftPost = draftPostDao.getPostById(id).toDto()
 
-            val response = PostApiService.service
+            val response = ApiService.service
                 .save(if (id > 0) draftPost else draftPost.copy(id = 0L))
             //id<0 have new posts
             //for uploading new post to api, id=0 (due to api arch)
@@ -149,7 +208,7 @@ class PostRepoImpl(
 
     override suspend fun getAll() {
         try {
-            val response = PostApiService.service.getAll()
+            val response = ApiService.service.getAll()
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -160,7 +219,7 @@ class PostRepoImpl(
             )
             val postsEnt = body.map {
                 PostEntity.fromDtoToEnt(it)
-                    .copy(isSaved = true, isToShow = true)
+                    .copy(isSaved = true, isToShow = true, isInShowFilter = true)
             }
             postDao.insert(postsEnt) //update local db
         } catch (e: IOException) {
@@ -172,7 +231,7 @@ class PostRepoImpl(
 
     override suspend fun likeById(id: Long) {
         try {
-            val response = PostApiService.service.like(id)//api like
+            val response = ApiService.service.like(id)//api like
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             } else {
@@ -195,7 +254,7 @@ class PostRepoImpl(
 
     override suspend fun unLikeById(id: Long) {
         try {
-            val response = PostApiService.service.unlike(id)//api unlike
+            val response = ApiService.service.unlike(id)//api unlike
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             } else {
@@ -218,7 +277,7 @@ class PostRepoImpl(
 
     override suspend fun removeById(id: Long) {
         try {
-            val response = PostApiService.service.deletePostById(id)//api delete
+            val response = ApiService.service.deletePostById(id)//api delete
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             } else {
@@ -251,7 +310,7 @@ class PostRepoImpl(
 
     override suspend fun saveWithApi(post: Post) {
         try {
-            val response = PostApiService.service.save(post)
+            val response = ApiService.service.save(post)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -276,6 +335,7 @@ class PostRepoImpl(
 
     override suspend fun saveWithDb(post: Post) {
         try {
+            val draftExistsMaxCounter = 20L
             var newDraftId = 0L
             if (post.id != 0L) {
                 postDao.insert(
@@ -287,11 +347,10 @@ class PostRepoImpl(
                     )
                 )//id > 0
             } else {
-                newDraftId = (-1)*(getSizeOfDrafts() + 1L)
-                val draftExistsMaxCounter = 20
+                newDraftId = (-1) * (getSizeOfDrafts() + 1L)
                 loop@ while (true) {
                     //IDEA WARNING about null condition IS FAKE
-                    if (draftPostDao.getPostById(newDraftId) == null){
+                    if (draftPostDao.getPostById(newDraftId) == null) {
                         break@loop
                     } else {
                         newDraftId -= 1L
@@ -302,11 +361,12 @@ class PostRepoImpl(
                     PostEntity.fromDtoToEnt(
                         post.copy(
                             id = newDraftId % draftExistsMaxCounter,
-                            isSaved = false)//id < 0
+                            isSaved = false
+                        )//id < 0
                     )
                 )
             }
-            val response = PostApiService.service.save(post)
+            val response = ApiService.service.save(post)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -316,8 +376,98 @@ class PostRepoImpl(
                 response.message()
             )
             postDao.removeById(post.id)
-            postDao.insert(PostEntity.fromDtoToEnt(body.copy(isSaved = true, isToShow = true)))
-            draftPostDao.removeById(if (post.id == 0L) newDraftId else post.id)
+            postDao.insert(
+                PostEntity.fromDtoToEnt(
+                    body.copy(
+                        isSaved = true,
+                        isToShow = true
+                    )
+                )
+            )
+            //IDEA Warning about non-null value is fake
+            draftPostDao.removeById(
+                if (post.id == 0L) newDraftId % draftExistsMaxCounter else post.id
+            )
+
+        } catch (e: Exception) {
+            when (e) {
+                is IOException -> {
+                    throw NetworkError
+                }
+
+                else -> {
+                    throw UnknownError
+                }
+            }
+        }
+    }
+
+    override suspend fun saveWithDb(post: Post, upload: MediaUpload?) {
+        try {
+            val postWithAttachment = if (upload != null) {
+                // TODO: supporting for other types
+                val media = upload(upload)//getting id after saving to dao
+                post.copy(
+                    attachment = Attachment(
+                        url = media.id,
+                        type = AttachmentType.IMAGE
+                    )
+                )
+            } else post
+            println("url = ${postWithAttachment.attachment?.url}")
+            saveWithDb(postWithAttachment)
+        } catch (e: Exception) {
+            //upload != null and media == null case
+            saveWithDb(
+                post.copy(
+                    attachment = Attachment(
+                        url = upload?.file?.name ?: "attachment404",
+                        type = AttachmentType.IMAGE
+                    )
+                )
+            )
+            //println("url = ${upload?.file?.name}")
+            when (e) {
+                is ApiError -> {
+                    throw e
+                }
+
+                is IOException -> {
+                    throw NetworkError
+                }
+
+                else -> {
+                    throw UnknownError
+                }
+            }
+        }
+    }
+
+    override suspend fun upload(upload: MediaUpload): Media {
+        /*
+        return ApiService.service.upload(
+            MultipartBody.Part.createFormData(
+                "file",
+                upload.file.name,
+                upload.file.asRequestBody()
+            )
+        )
+        */
+        try {
+            val media =
+                MultipartBody.Part.createFormData(
+                    "file", upload.file.name, upload.file.asRequestBody()
+                )
+
+            val response = ApiService.service.upload(media)
+            if (!response.isSuccessful) {
+                throw ApiError(response.code(), response.message())
+            }
+
+            return response.body() ?: throw ApiError(
+                response.code(),
+                response.message()
+            )
         } catch (e: Exception) {
             when (e) {
                 is IOException -> {

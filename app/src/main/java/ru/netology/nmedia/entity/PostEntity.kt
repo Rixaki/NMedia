@@ -12,6 +12,7 @@ import ru.netology.nmedia.dto.Post
 @TypeConverters(AttachmentConverter::class)
 data class PostEntity(
     @PrimaryKey(autoGenerate = true) val id: Long,
+    val authorId: Long,
     val author: String,
     val authorAvatar: String,
     val content: String,
@@ -21,12 +22,16 @@ data class PostEntity(
     val shares: Long = 0,
     val isSaved: Boolean = false,
     val isToShow: Boolean = true,
+    val isInShowFilter: Boolean = true,
     val video: String? = null,
+
+    val ownedByMe: Boolean = false,
     @Embedded
-    val attachment: Attachment? = null
+    val attachment: AttachmentEmbeddable? = null
 ) {
     fun toDto(): Post = Post(
         id = id,
+        authorId = authorId,
         author = author,
         authorAvatar = authorAvatar,
         content = content,
@@ -37,13 +42,15 @@ data class PostEntity(
         isSaved = isSaved,
         video = video,
         isToShow = isToShow,
-        attachment = attachment
+        isInShowFilter = isInShowFilter,
+        attachment = attachment?.toAttDto(),
     )
 
     companion object {
         fun fromDtoToEnt(dto: Post): PostEntity = with(dto) {
             PostEntity(
                 id = id,
+                authorId = authorId,
                 author = author,
                 authorAvatar = authorAvatar,
                 content = content,
@@ -54,15 +61,20 @@ data class PostEntity(
                 isSaved = isSaved,
                 video = video,
                 isToShow = isToShow,
-                attachment = attachment
+                isInShowFilter = isInShowFilter,
+                attachment = attachment?.let {
+                    AttachmentEmbeddable.fromDtoToEntAtt(
+                        it
+                    )
+                }
             )
         }
     }
 }
 
-data class AttachmentEntity(
+data class AttachmentEmbeddable(
     val url: String,
-    val description: String,
+    val description: String?,
     val type: AttachmentTypeEntity
 ) {
     fun toAttDto(): Attachment = Attachment(
@@ -72,8 +84,8 @@ data class AttachmentEntity(
     )
 
     companion object {
-        fun fromDtoToEntAtt(dto: Attachment): AttachmentEntity = with(dto) {
-            AttachmentEntity(
+        fun fromDtoToEntAtt(dto: Attachment): AttachmentEmbeddable = with(dto) {
+            AttachmentEmbeddable(
                 url = url,
                 description = description,
                 type = AttachmentTypeEntity.valueOf(type.name)
