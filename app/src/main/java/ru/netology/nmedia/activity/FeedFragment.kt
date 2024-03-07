@@ -18,7 +18,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.AttachmentFragment.Companion.urlArg
@@ -30,6 +29,8 @@ import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.funcs.countToString
+import ru.netology.nmedia.util.SignInDialog
+import ru.netology.nmedia.util.SignOutDialog
 import ru.netology.nmedia.viewmodel.AuthViewModel
 import ru.netology.nmedia.viewmodel.PostViewModel
 
@@ -110,15 +111,7 @@ class FeedFragment : Fragment() {
                     }
 
                     R.id.signOut -> {
-                        MaterialAlertDialogBuilder(context!!)
-                            .setTitle("Signing Out")
-                            .setMessage("Are you want to from your account?")
-                            .setIcon(R.drawable.baseline_logout_48)
-                            .setNegativeButton("Cancel", null)
-                            .setPositiveButton("Sign Out") { _,_ ->
-                                AppAuth.getInstance().removeAuth()
-                            }
-                            .show()
+                        SignOutDialog(requireContext())
                         true
                     }
 
@@ -149,11 +142,7 @@ class FeedFragment : Fragment() {
                         viewModel.likeById(post.id)
                     }
                 } else {
-                    Toast.makeText(
-                        requireContext(),
-                        "Sign In for like post.",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    SignInDialog(requireContext())
                     findNavController().navigate(R.id.action_global_to_signInFragment)
                 }
             }

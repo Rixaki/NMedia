@@ -29,6 +29,7 @@ import ru.netology.nmedia.adapter.PostViewHolder
 import ru.netology.nmedia.databinding.FragmentPostBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.util.LongArg
+import ru.netology.nmedia.util.SignInDialog
 import ru.netology.nmedia.viewmodel.AuthViewModel
 import ru.netology.nmedia.viewmodel.PostViewModel
 
@@ -68,11 +69,7 @@ class PostFragment : Fragment() {
                         viewModel.likeById(post.id)
                     }
                 } else {
-                    Toast.makeText(
-                        requireContext(),
-                        "Sign In for like post.",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    SignInDialog(requireContext())
                     findNavController().navigate(R.id.action_global_to_signInFragment)
                 }
             }
