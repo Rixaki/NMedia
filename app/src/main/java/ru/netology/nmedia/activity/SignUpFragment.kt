@@ -2,14 +2,20 @@ package ru.netology.nmedia.activity
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toFile
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -28,12 +34,40 @@ import ru.netology.nmedia.viewmodel.PhotoViewModel
 import ru.netology.nmedia.viewmodel.SignViewModel
 
 class SignUpFragment : Fragment() {
+    //for hiding menu item
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        activity?.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menu.clear()
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return true
+            }
+        })
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        requireActivity()
+            .onBackPressedDispatcher
+            .addCallback(this){
+                this.isEnabled = true
+                findNavController().navigate(R.id.action_global_to_feedFragment)
+            }
+    }
+
     @SuppressLint("ResourceType")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        setMenuVisibility(false)
+
         val authModel by activityViewModels<SignViewModel>()
         val viewModel by activityViewModels<PhotoViewModel>()
 
@@ -70,23 +104,21 @@ class SignUpFragment : Fragment() {
                             pass = pass,
                             uploadAvatar = avatarMedia
                             )
-                        //TODO: AVA CHECKING PRINTLN
-                        println("uploadAvatar name: ${avatarMedia?.file?.name}")
                         val id = response.id
                         val token = response.token
+                        //avatarUrl field save error info in exception case
+                        val avatar = response.avatarUrl
                         if (id != 0L && token != null) {
-                            AppAuth.getInstance().removeAuth()
-                            AppAuth.getInstance().setAuth(id, token)
                             Toast.makeText(
                                 requireContext(),
-                                "Registration successes (id=${id}). Sign In!",
+                                "Registration successes (id=${id}). You Signed In!",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            findNavController().navigate(R.layout.fragment_sign_in)
+                            findNavController().navigate(R.id.action_global_to_feedFragment)
                         } else {
                             Toast.makeText(
                                 requireContext(),
-                                "Registration unsuccessful.",
+                                "Registration unsuccessful. Error log - $avatar",
                                 Toast.LENGTH_SHORT
                             ).show()
                             binding.txtPassword.setText(null)
@@ -103,7 +135,7 @@ class SignUpFragment : Fragment() {
         }
 
         binding.signInHintButton.setOnClickListener {
-            findNavController().navigate(R.layout.fragment_sign_in)
+            findNavController().navigate(R.id.action_global_to_signInFragment)
         }
 
         val pickPhotoLauncher =

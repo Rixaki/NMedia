@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.widget.ImageView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuProvider
@@ -16,6 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_INDEFINITE
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
@@ -30,6 +32,7 @@ class AppActivity : AppCompatActivity() {
 
     val viewModel by viewModels<AuthViewModel>()
 
+    //TODO: THIS ADDING OF UNDO BUTTON (IN START_SIDE) HIDE MENU IN END-SIDE
     override fun onStart() {
         super.onStart()
         //TODO: add SET click listener
@@ -98,8 +101,11 @@ class AppActivity : AppCompatActivity() {
             }
         }
 
+        /*
+        //TODO: MENU DUPLICATE IN FEEDFRAGMENT, HERE NOT SHOWS
         addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menu.clear();
                 menuInflater.inflate(R.menu.main_menu, menu)
 
                 menu.let {
@@ -108,7 +114,6 @@ class AppActivity : AppCompatActivity() {
                 }
             }
 
-            /*
             override fun onPrepareMenu(menu: Menu) {
                 menu.setGroupVisible(
                     R.id.authenticated,
@@ -119,12 +124,9 @@ class AppActivity : AppCompatActivity() {
                     !viewModel.authenticated
                 )
             }
-             */
 
-            //TODO: hidden main menu in signIn/signUp fragment
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                //TODO: HOMEWORK with fragment navigations
-                return when (menuItem.itemId) {
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+                when (menuItem.itemId) {
                     R.id.signIn -> {
                         AppAuth.getInstance().setAuth(5, "x-token")
                         true
@@ -136,15 +138,23 @@ class AppActivity : AppCompatActivity() {
                     }
 
                     R.id.signOut -> {
-                        AppAuth.getInstance().removeAuth()
+                        MaterialAlertDialogBuilder(this@AppActivity)
+                            .setTitle("Signing Out")
+                            .setMessage("Are you want to from your account?")
+                            .setIcon(R.drawable.baseline_logout_48)
+                            .setNegativeButton("Cancel", null)
+                            .setPositiveButton("Sign Out", ) { _,_ ->
+                                AppAuth.getInstance().removeAuth()
+                            }
+                            .show()
                         true
                     }
 
-                    else -> false
+                    else -> {false}
                 }
-            }
-
         })//addMenuProvider
+
+         */
     }
 
     private fun requestNotificationsPermission() {

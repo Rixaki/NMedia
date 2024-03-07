@@ -1,5 +1,6 @@
 package ru.netology.nmedia.auth
 
+import android.widget.Toast
 import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.error.ApiError
 import ru.netology.nmedia.error.NetworkError
@@ -12,7 +13,9 @@ class Login {
             try {
                 val response = ApiService.service.signIn(login, pass)
                 if (!response.isSuccessful) {
-                    throw ApiError(response.code(), response.message())
+                    //println("code - ${response.code()}")
+                    //println("message - ${response.message()}")
+                    throw ApiError(response.code(), response.message()) //example: 404
                 }
 
                 return response.body() ?: throw ApiError(
@@ -20,14 +23,16 @@ class Login {
                     response.message()
                 )
             } catch (e: Exception) {
-                e.printStackTrace()
+                //e.printStackTrace()
                 when (e) {
                     is IOException -> {
-                        throw NetworkError
+                        return AuthState(avatarUrl = "IOException")
                     }
-
+                    is ApiError -> {
+                        return AuthState(avatarUrl = "${ApiError().status}")
+                    }
                     else -> {
-                        throw UnknownError
+                        return AuthState(avatarUrl = "UnknownError")
                     }
                 }
             }

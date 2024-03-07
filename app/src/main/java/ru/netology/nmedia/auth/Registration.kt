@@ -40,11 +40,13 @@ class Registration {
                 e.printStackTrace()
                 when (e) {
                     is IOException -> {
-                        throw NetworkError
+                        return AuthState(avatarUrl = "IOException")
                     }
-
+                    is ApiError -> {
+                        return AuthState(avatarUrl = "status ${ApiError().status}")
+                    }
                     else -> {
-                        throw UnknownError
+                        return AuthState(avatarUrl = "UnknownError")
                     }
                 }
             }

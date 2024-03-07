@@ -5,6 +5,15 @@
     android:id="@+id/nav_main"
     app:startDestination="@id/feedFragment">
 
+    <action
+        android:id="@+id/action_global_to_signInFragment"
+        app:destination="@id/signInFragment" />
+    <action
+        android:id="@+id/action_global_to_signUpFragment"
+        app:destination="@id/signUpFragment" />
+    <action
+        android:id="@+id/action_global_to_feedFragment"
+        app:destination="@id/feedFragment" />
     <fragment
         android:id="@+id/feedFragment"
         android:name="ru.netology.nmedia.activity.FeedFragment"

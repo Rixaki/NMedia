@@ -87,12 +87,11 @@ interface AppApi {
     //USER COMMAND
     //https://demonuts.com/android-login-registration-using-retrofit/
     @Multipart
-    @FormUrlEncoded
     @POST("users/registration")
     suspend fun signUp(
-        @Field("login") login: String,
-        @Field("pass") pass: String,
-        @Field("name") name: String,
+        @Part("login") login: String,
+        @Part("pass") pass: String,
+        @Part("name") name: String,
         @Part avatar: MultipartBody.Part?,
     ): Response<AuthState>
     //throwable UserRegisteredException()

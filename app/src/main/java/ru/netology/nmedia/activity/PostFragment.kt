@@ -3,6 +3,7 @@ package ru.netology.nmedia.activity
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -10,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -69,9 +71,9 @@ class PostFragment : Fragment() {
                     Toast.makeText(
                         requireContext(),
                         "Sign In for like post.",
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_LONG
                     ).show()
-                    findNavController().navigate(R.layout.fragment_sign_in)
+                    findNavController().navigate(R.id.action_global_to_signInFragment)
                 }
             }
 

@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.AttachmentFragment.Companion.urlArg
@@ -36,7 +37,6 @@ import ru.netology.nmedia.viewmodel.PostViewModel
 //class MainActivity : AppCompatActivity() {
 
 class FeedFragment : Fragment() {
-
     /*
     companion object {
         var Bundle.textArg: String? by StringArg
@@ -77,9 +77,10 @@ class FeedFragment : Fragment() {
         }
          */
 
-        //TODO: WITHOUT addMenuProvider MENU NOT SHOW
+        //TODO: MENU RELOCATED FROM ACTIVITY
         requireActivity().addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menu.clear()
                 menuInflater.inflate(R.menu.main_menu, menu)
             }
 
@@ -99,23 +100,31 @@ class FeedFragment : Fragment() {
                 //TODO: HOMEWORK with fragment navigations
                 return when (menuItem.itemId) {
                     R.id.signIn -> {
-                        AppAuth.getInstance().setAuth(5, "x-token")
+                        findNavController().navigate(R.id.action_feedFragment_to_signInFragment)
                         true
                     }
 
                     R.id.signUp -> {
+                        findNavController().navigate(R.id.action_feedFragment_to_signUpFragment)
                         true
                     }
 
                     R.id.signOut -> {
-                        AppAuth.getInstance().removeAuth()
+                        MaterialAlertDialogBuilder(context!!)
+                            .setTitle("Signing Out")
+                            .setMessage("Are you want to from your account?")
+                            .setIcon(R.drawable.baseline_logout_48)
+                            .setNegativeButton("Cancel", null)
+                            .setPositiveButton("Sign Out") { _,_ ->
+                                AppAuth.getInstance().removeAuth()
+                            }
+                            .show()
                         true
                     }
 
                     else -> false
                 }
             }
-
         })//addMenuProvider
 
         binding.newPostButton.setOnClickListener {
@@ -125,18 +134,27 @@ class FeedFragment : Fragment() {
                 Toast.makeText(
                     requireContext(),
                     "Sign In for sending post.",
-                    Toast.LENGTH_SHORT
+                    Toast.LENGTH_LONG
                 ).show()
-                findNavController().navigate(R.layout.fragment_sign_in)
+                findNavController().navigate(R.id.action_global_to_signInFragment)
             }
         }
 
         val adapter = PostsAdapter(object : OnIterationListener {
             override fun onLikeLtn(post: Post) {
-                if (post.likedByMe) {
-                    viewModel.unLikeById(post.id)
+                if (authModel.authenticated) {
+                    if (post.likedByMe) {
+                        viewModel.unLikeById(post.id)
+                    } else {
+                        viewModel.likeById(post.id)
+                    }
                 } else {
-                    viewModel.likeById(post.id)
+                    Toast.makeText(
+                        requireContext(),
+                        "Sign In for like post.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    findNavController().navigate(R.id.action_global_to_signInFragment)
                 }
             }
 
