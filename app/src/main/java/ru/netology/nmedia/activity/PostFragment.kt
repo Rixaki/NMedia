@@ -20,6 +20,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.github.dhaval2404.imagepicker.ImagePicker
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.AttachmentFragment.Companion.urlArg
@@ -29,7 +30,6 @@ import ru.netology.nmedia.adapter.PostViewHolder
 import ru.netology.nmedia.databinding.FragmentPostBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.util.LongArg
-import ru.netology.nmedia.util.SignInDialog
 import ru.netology.nmedia.viewmodel.AuthViewModel
 import ru.netology.nmedia.viewmodel.PostViewModel
 
@@ -69,8 +69,15 @@ class PostFragment : Fragment() {
                         viewModel.likeById(post.id)
                     }
                 } else {
-                    SignInDialog(requireContext())
-                    findNavController().navigate(R.id.action_global_to_signInFragment)
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle("Action not yet available")
+                        .setMessage("Do you want to sign in? ... for like/add posts etc.")
+                        .setIcon(R.drawable.baseline_login_48)
+                        .setNegativeButton("Cancel", null)
+                        .setPositiveButton("Sign In") { _,_ ->
+                            findNavController().navigate(R.id.action_global_to_signInFragment)
+                        }
+                        .show()
                 }
             }
 
