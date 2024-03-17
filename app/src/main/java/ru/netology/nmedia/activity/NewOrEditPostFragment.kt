@@ -69,8 +69,19 @@ class NewOrEditPostFragment() : Fragment() {
             val text = binding.content.text.toString()
 
             if (text.isBlank()) {
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.newAndEdit_toast_empty),
+                    Toast.LENGTH_LONG
+                ).show()
+                findNavController().navigateUp()
                 //setResult(Activity.RESULT_CANCELED, Intent())
             } else {
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.newAndEdit_toast_request),
+                    Toast.LENGTH_LONG
+                ).show()
                 viewModel.changeContentAndSave(text)
                 //setResult(RESULT_OK, Intent().putExtra(Intent.EXTRA_TEXT, text))
             }

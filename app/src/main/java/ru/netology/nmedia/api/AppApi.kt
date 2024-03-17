@@ -2,6 +2,7 @@ package ru.netology.nmedia.api
 
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
+import okhttp3.RequestBody
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -89,9 +90,9 @@ interface AppApi {
     @Multipart
     @POST("users/registration")
     suspend fun signUp(
-        @Part("login") login: String,
-        @Part("pass") pass: String,
-        @Part("name") name: String,
+        @Part("login") login: RequestBody,
+        @Part("pass") pass: RequestBody,
+        @Part("name") name: RequestBody,
         @Part avatar: MultipartBody.Part?,
     ): Response<AuthState>
     //throwable UserRegisteredException()

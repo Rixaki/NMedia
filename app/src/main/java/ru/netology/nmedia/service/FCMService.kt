@@ -28,7 +28,7 @@ class FCMService : FirebaseMessagingService() {
 
     private val channelId = "server"
 
-    private val keyId = "recipientId"
+    //private val keyId = "recipientId"
     private val idAuthState: StateFlow<AuthState> = AppAuth.getInstance().authState
 
     override fun onCreate() {
@@ -52,9 +52,13 @@ class FCMService : FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
-        message.data[keyId]?.let {
+        val push = gson.fromJson(
+            message.data[action],
+            Push::class.java
+        )
+        push.recipientId?.let {
             when(it) {
-                idAuthState.value.id.toString(), "null" -> {} //ok case
+                idAuthState.value.id.toInt(), null -> {} //ok case
                 else -> { AppAuth.getInstance().sendPushToken(idAuthState.value.token) } //need resend token for id=0, id!=0
             }
         }
@@ -242,6 +246,11 @@ data class Like(
 data class NewPost(
     val postId: Int,
     val postAuthor: String,
+    val content: String
+)
+
+data class Push(
+    val recipientId: Int,
     val content: String
 )
 

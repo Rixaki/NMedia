@@ -1,6 +1,7 @@
 package ru.netology.nmedia.auth
 
 import android.widget.Toast
+import okhttp3.RequestBody.Companion.toRequestBody
 import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.error.ApiError
 import ru.netology.nmedia.error.NetworkError
@@ -9,30 +10,32 @@ import java.io.IOException
 
 class Login {
     companion object {
-        suspend fun login(login: String, pass: String): AuthState {
+        suspend fun login(login: String, pass: String): Result<AuthState> {
             try {
-                val response = ApiService.service.signIn(login, pass)
-                if (!response.isSuccessful) {
-                    //println("code - ${response.code()}")
-                    //println("message - ${response.message()}")
-                    throw ApiError(response.code(), response.message()) //example: 404
-                }
+                val response = ApiService.service.signIn(
+                    login,
+                    pass
+                )
 
-                return response.body() ?: throw ApiError(
-                    response.code(),
-                    response.message()
+                println("token: ${response.body()?.token ?: "null"}")
+
+                return response.body()?.let { Result.success(it) } ?: Result.failure(
+                    ApiError(
+                        response.code(),
+                        response.message()
+                    )
                 )
             } catch (e: Exception) {
                 //e.printStackTrace()
                 when (e) {
                     is IOException -> {
-                        return AuthState(avatarUrl = "IOException")
+                        return Result.failure(IOException())
                     }
                     is ApiError -> {
-                        return AuthState(avatarUrl = "${ApiError().status}")
+                        return Result.failure(ApiError())
                     }
                     else -> {
-                        return AuthState(avatarUrl = "UnknownError")
+                        return Result.failure(UnknownError())
                     }
                 }
             }

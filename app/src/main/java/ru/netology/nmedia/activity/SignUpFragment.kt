@@ -19,6 +19,7 @@ import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.github.dhaval2404.imagepicker.ImagePicker
@@ -60,7 +61,7 @@ class SignUpFragment : Fragment() {
             }
     }
 
-    @SuppressLint("ResourceType")
+    @SuppressLint("ResourceType", "StringFormatMatches", "StringFormatInvalid")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -69,6 +70,7 @@ class SignUpFragment : Fragment() {
         setMenuVisibility(false)
 
         val authModel by activityViewModels<SignViewModel>()
+        authModel.clearResponse()
         val viewModel by activityViewModels<PhotoViewModel>()
 
         val binding = FragmentSignUpBinding
@@ -83,54 +85,56 @@ class SignUpFragment : Fragment() {
             if (login.isBlank() || name.isBlank()) {
                 Toast.makeText(
                     requireContext(),
-                    "Login and name must not be empty.",
+                    getString(R.string.regi_toast_empty),
                     Toast.LENGTH_SHORT
                 ).show()
             } else {
                 if (pass == confPass) {
                     Toast.makeText(
                         requireContext(),
-                        "Request for registration...",
+                        getString(R.string.regi_toast_request),
                         Toast.LENGTH_SHORT
                     ).show()
-                    lifecycleScope.launch(SupervisorJob()) {
-                        val avatarMedia = viewModel.photo.value?.file?.let {
-                            file -> MediaUpload(file)
-                        }//nullable
+                    val avatarMedia = viewModel.photo.value?.file?.let {
+                        file -> MediaUpload(file)
+                    }//nullable
 
-                        val response = authModel.register(
-                            name = name,
-                            login = login,
-                            pass = pass,
-                            uploadAvatar = avatarMedia
-                            )
-                        val id = response.id
-                        val token = response.token
-                        //avatarUrl field save error info in exception case
-                        val avatar = response.avatarUrl
-                        if (id != 0L && token != null) {
-                            Toast.makeText(
-                                requireContext(),
-                                "Registration successes (id=${id}). You Signed In!",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            findNavController().navigate(R.id.action_global_to_feedFragment)
-                        } else {
-                            Toast.makeText(
-                                requireContext(),
-                                "Registration unsuccessful. Error log - $avatar",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            binding.txtPassword.setText(null)
-                        }
-                    }
+                    authModel.register(
+                        name = name,
+                        login = login,
+                        pass = pass,
+                        uploadAvatar = avatarMedia
+                    ) //result<auth>
                 } else {
                     Toast.makeText(
                         requireContext(),
-                        "Password not match with Confirm password.",
+                        getString(R.string.regi_toast_unmatch),
                         Toast.LENGTH_SHORT
                     ).show()
                 }
+            }
+        }
+
+        authModel.response.asLiveData().observe(viewLifecycleOwner) { response ->
+            if (response.isSuccess) {
+                val id = response.getOrNull()?.id
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.regi_toast_success, id),
+                    Toast.LENGTH_SHORT
+                ).show()
+                findNavController().navigate(R.id.action_global_to_feedFragment)
+            } else {
+                val errorMsg =
+                    response.exceptionOrNull()?.message ?: "no detected error"
+                if (errorMsg != "Initial value") {
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.regi_toast_unsuccess, errorMsg),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                binding.txtPassword.setText(null)
             }
         }
 

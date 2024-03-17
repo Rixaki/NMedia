@@ -40,5 +40,16 @@
     <string name="sign_up">Sign Up</string>
     <string name="sign_out">Sign Out</string>
     <string name="password">password</string>
+    <string name="login_toast_empty">Login must not be empty.</string>
+    <string name="login_toast_request">Request for login...</string>
+    <string name="login_toast_success">Login successes as user with id=%1$s.</string>
+    <string name="login_toast_unsuccess">Login and password didn`t match. Error log - %1$s</string>
+    <string name="regi_toast_empty">Login and name must not be empty.</string>
+    <string name="regi_toast_request">Request for registration...</string>
+    <string name="regi_toast_success">Registration successes (id=%1$s).</string>
+    <string name="regi_toast_unsuccess">Registration unsuccessful. Error log - %1$s</string>
+    <string name="regi_toast_unmatch">Password not match with Confirm password.</string>
+    <string name="newAndEdit_toast_empty">Text must not be empty.</string>
+    <string name="newAndEdit_toast_request">Request for add/edit post...</string>
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

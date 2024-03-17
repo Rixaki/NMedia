@@ -89,7 +89,7 @@
                     android:maxWidth="200dp"
                     android:text="Clear avatar"
                     android:textColor="?colorOnPrimary"
-                    android:visibility="visible"
+                    android:visibility="gone"
                     app:iconTint="?colorOnPrimary"
                     app:layout_anchor="@id/newAttachmentMedia" />
 

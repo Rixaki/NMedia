@@ -41,4 +41,15 @@
     <string name="sign_up">Зарегестрироваться</string>
     <string name="sign_out">Выйти</string>
     <string name="password">пароль</string>
+    <string name="login_toast_empty">Задайте непустой логин.</string>
+    <string name="login_toast_request">Запрос на вход...</string>
+    <string name="login_toast_success">Вход успешен (за пользователя с id=%1$s)</string>
+    <string name="login_toast_unsuccess">Логин и пароль не совпали. Код ошибки - %1$s</string>
+    <string name="regi_toast_empty">Задайте логин и пароль непустыми.</string>
+    <string name="regi_toast_request">Запрос на регистрацию...</string>
+    <string name="regi_toast_success">Регистрация успешна (id=%1$s)</string>
+    <string name="regi_toast_unsuccess">Регистрация провалилась. Код ошибки</string>
+    <string name="regi_toast_unmatch">Подтверждающий пароль и основной пароль НЕ совпали.</string>
+    <string name="newAndEdit_toast_empty">Действие с пустым тестом недействительно.</string>
+    <string name="newAndEdit_toast_request">Запрос на создание/редактирование поста...</string>
 </resources>

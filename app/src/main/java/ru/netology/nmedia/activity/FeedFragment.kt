@@ -32,6 +32,7 @@ import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.funcs.countToString
 import ru.netology.nmedia.viewmodel.AuthViewModel
 import ru.netology.nmedia.viewmodel.PostViewModel
+import ru.netology.nmedia.viewmodel.SignViewModel
 
 
 //class MainActivity : AppCompatActivity() {
@@ -57,25 +58,9 @@ class FeedFragment : Fragment() {
 
         val viewModel: PostViewModel by activityViewModels()
         val authModel by viewModels<AuthViewModel>()
-
-        /*
-        fun imitateClick(idButton: Int){
-            when(idButton){
-                R.id.onlySaved -> {
-                    binding.postsGroupButton.check(R.id.onlySaved)
-                    viewModel.onlySavedShow()
-                }
-                R.id.onlyDrafts->{
-                    binding.postsGroupButton.check(R.id.onlyDrafts)
-                    viewModel.onlyDraftShow()
-                }
-                R.id.allPosts->{
-                    binding.postsGroupButton.check(R.id.allPosts)
-                    viewModel.noFilterShow()
-                }
-            }
-        }
-         */
+        println("auth-ed ${authModel.authenticated}")
+        //val signModel by viewModels<SignViewModel>()
+        //signModel.clearResponse()
 
         //TODO: MENU RELOCATED FROM ACTIVITY
         requireActivity().addMenuProvider(object : MenuProvider {
