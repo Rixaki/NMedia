@@ -3,14 +3,18 @@ package ru.netology.nmedia.auth
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import ru.netology.nmedia.api.ApiService
+import ru.netology.nmedia.api.AppApi
 import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.error.ApiError
 import java.io.IOException
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class Registration {
-    companion object{
-        suspend fun register(
+@Singleton
+class Registration @Inject constructor(
+    private val appApi: AppApi
+) {
+    suspend fun register(
             login: String,
             pass: String,
             name: String,
@@ -26,7 +30,7 @@ class Registration {
                 } else null
 
                 val response =
-                    ApiService.service.signUp(
+                    appApi.signUp(
                         login.toRequestBody(),
                         pass.toRequestBody(),
                         name.toRequestBody(),
@@ -57,5 +61,4 @@ class Registration {
                 }
             }
         }
-    }
 }

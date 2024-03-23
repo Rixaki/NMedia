@@ -3,18 +3,14 @@ package ru.netology.nmedia.activity
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ActivityNotFoundException
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.activity.addCallback
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -22,6 +18,7 @@ import androidx.navigation.fragment.findNavController
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.AttachmentFragment.Companion.urlArg
 import ru.netology.nmedia.activity.NewOrEditPostFragment.Companion.textArg
@@ -33,8 +30,17 @@ import ru.netology.nmedia.util.LongArg
 import ru.netology.nmedia.viewmodel.AuthViewModel
 import ru.netology.nmedia.viewmodel.PostViewModel
 
-
+@AndroidEntryPoint
 class PostFragment : Fragment() {
+    /*
+    private val viewModel: PostViewModel by viewModels(
+        ownerProducer = ::requireParentFragment
+    )
+
+     */
+    private val viewModel: PostViewModel by activityViewModels()
+
+    val authModel by viewModels<AuthViewModel>()
 
     companion object {
         var Bundle.longArg: Long by LongArg
@@ -48,11 +54,6 @@ class PostFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val viewModel: PostViewModel by activityViewModels()
-        //println("vm - $viewModel")
-
-        val authModel by viewModels<AuthViewModel>()
-
         val binding =
             FragmentPostBinding.inflate(layoutInflater, container, false)
 

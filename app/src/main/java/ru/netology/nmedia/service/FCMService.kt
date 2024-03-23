@@ -14,22 +14,29 @@ import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.StateFlow
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.AppActivity
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.auth.AuthState
+import javax.inject.Inject
 import kotlin.random.Random
 
+
+@AndroidEntryPoint
 class FCMService : FirebaseMessagingService() {
     private val action = "action"
     private val content = "content"
     private val gson = Gson()
 
-    private val channelId = "server"
+    @Inject
+    lateinit var appAuth: AppAuth
 
-    //private val keyId = "recipientId"
-    private val idAuthState: StateFlow<AuthState> = AppAuth.getInstance().authState
+    private val channelId = "server"
+    
+    private val idAuthState: StateFlow<AuthState> =
+        appAuth.authState
 
     override fun onCreate() {
         super.onCreate()
@@ -52,14 +59,22 @@ class FCMService : FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
+        //println(message.data.toString())
         val push = gson.fromJson(
-            message.data[action],
+            message.data[content],
             Push::class.java
         )
-        push.recipientId?.let {
+        push?.recipientId.let {
+            println("receiveId: ${push.recipientId}")
             when(it) {
-                idAuthState.value.id.toInt(), null -> {} //ok case
-                else -> { AppAuth.getInstance().sendPushToken(idAuthState.value.token) } //need resend token for id=0, id!=0
+                idAuthState.value.id.toString(), null -> {
+                    //println("ok case")//ok case
+                }
+                else -> {
+                    //println("token resended")
+                    appAuth.sendPushToken(idAuthState.value.token)
+                    //need resend token for id=0, id!=0
+                }
             }
         }
 
@@ -201,8 +216,7 @@ class FCMService : FirebaseMessagingService() {
     }
 
     override fun onNewToken(token: String) {
-        AppAuth.getInstance().sendPushToken(token)
-        //println(token)
+        appAuth.sendPushToken(token)
     }
 }
 
@@ -250,7 +264,7 @@ data class NewPost(
 )
 
 data class Push(
-    val recipientId: Int,
+    val recipientId: String,
     val content: String
 )
 

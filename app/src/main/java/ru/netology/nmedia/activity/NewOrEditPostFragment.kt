@@ -16,6 +16,7 @@ import androidx.navigation.fragment.findNavController
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.github.dhaval2404.imagepicker.constant.ImageProvider
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentNewOrEditPostBinding
 import ru.netology.nmedia.util.AndroidUtils
@@ -23,7 +24,17 @@ import ru.netology.nmedia.util.StringArg
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 //class NewOrEditPostActivity() : AppCompatActivity() {
+@AndroidEntryPoint
 class NewOrEditPostFragment() : Fragment() {
+    /*
+    private val viewModel: PostViewModel by viewModels(
+        ownerProducer = ::requireParentFragment
+    )
+
+     */
+    private val viewModel: PostViewModel by activityViewModels()
+    //vm by viewModels exists in 1 fr-nt, vm by actVMs exists in 1 act-ty
+    //another script - link vm to parent fragment
 
     companion object {
         var Bundle.textArg: String? by StringArg
@@ -32,15 +43,13 @@ class NewOrEditPostFragment() : Fragment() {
         //set(value)= putString(KEY_TEXT, value)
     }
 
+    //private val dependencyContainer = DependencyContainer.getInstance()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val viewModel by activityViewModels<PostViewModel>()
-        //vm by viewModels exists in 1 fr-nt, vm by actVMs exists in 1 act-ty
-        //another script - link vm to parent fragment
-
         val binding = FragmentNewOrEditPostBinding.inflate(
             layoutInflater,
             container,

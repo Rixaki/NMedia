@@ -8,7 +8,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.widget.ImageView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuProvider
@@ -17,20 +17,29 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_INDEFINITE
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.messaging.FirebaseMessaging
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewOrEditPostFragment.Companion.textArg
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.ActivityAppBinding
 import ru.netology.nmedia.viewmodel.AuthViewModel
+import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class AppActivity : AppCompatActivity() {
 
-    val viewModel by viewModels<AuthViewModel>()
+    //private val viewModel: PostViewModel by viewModels()
+    private val authModel : AuthViewModel by viewModels()
+
+    @Inject
+    lateinit var appAuth: AppAuth
 
     //TODO: THIS ADDING OF UNDO BUTTON (IN START_SIDE) HIDE MENU IN END-SIDE
     override fun onStart() {
@@ -45,6 +54,8 @@ class AppActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         requestNotificationsPermission()
+
+        checkGoogleApiAvailability()
 
         val binding = ActivityAppBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -95,45 +106,55 @@ class AppActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.data.collect {
+                appAuth.authState.collect {
                     invalidateOptionsMenu()
                 }
             }
         }
 
-        /*
+        //TODO: REWRITE WITH DI
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                println("some stuff happened: ${task.exception}")
+                return@addOnCompleteListener
+            }
+
+            val token = task.result
+            println("Token from FCM: $token")
+        }
+
         //TODO: MENU DUPLICATE IN FEEDFRAGMENT, HERE NOT SHOWS
         addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menu.clear();
+                //menu.clear();
                 menuInflater.inflate(R.menu.main_menu, menu)
 
                 menu.let {
-                    it.setGroupVisible(R.id.unauthenticated, !viewModel.authenticated)
-                    it.setGroupVisible(R.id.authenticated, viewModel.authenticated)
+                    it.setGroupVisible(R.id.unauthenticated, !authModel.authenticated)
+                    it.setGroupVisible(R.id.authenticated, authModel.authenticated)
                 }
             }
 
             override fun onPrepareMenu(menu: Menu) {
                 menu.setGroupVisible(
                     R.id.authenticated,
-                    viewModel.authenticated
+                    authModel.authenticated
                 )
                 menu.setGroupVisible(
                     R.id.unauthenticated,
-                    !viewModel.authenticated
+                    !authModel.authenticated
                 )
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
                 when (menuItem.itemId) {
                     R.id.signIn -> {
-                        AppAuth.getInstance().setAuth(5, "x-token")
+                        findNavController(R.id.my_nav_host_fragment).navigate(R.id.action_feedFragment_to_signInFragment)
                         true
                     }
 
                     R.id.signUp -> {
-                        AppAuth.getInstance().setAuth(5, "x-token")
+                        findNavController(R.id.my_nav_host_fragment).navigate(R.id.action_feedFragment_to_signUpFragment)
                         true
                     }
 
@@ -144,7 +165,7 @@ class AppActivity : AppCompatActivity() {
                             .setIcon(R.drawable.baseline_logout_48)
                             .setNegativeButton("Cancel", null)
                             .setPositiveButton("Sign Out", ) { _,_ ->
-                                AppAuth.getInstance().removeAuth()
+                                appAuth.removeAuth()
                             }
                             .show()
                         true
@@ -154,7 +175,6 @@ class AppActivity : AppCompatActivity() {
                 }
         })//addMenuProvider
 
-         */
     }
 
     private fun requestNotificationsPermission() {
@@ -169,5 +189,21 @@ class AppActivity : AppCompatActivity() {
         }
 
         requestPermissions(arrayOf(permission), 1)
+    }
+
+    private fun checkGoogleApiAvailability() {
+        //TODO: REWRITE WITH DI
+        with(GoogleApiAvailability()) {
+            val code = isGooglePlayServicesAvailable(this@AppActivity)
+            if (code == ConnectionResult.SUCCESS) {
+                return@with
+            }
+            if (isUserResolvableError(code)) {
+                getErrorDialog(this@AppActivity, code, 9000)?.show()
+                return
+            }
+            Toast.makeText(this@AppActivity, R.string.google_play_unavailable, Toast.LENGTH_LONG)
+                .show()
+        }
     }
 }

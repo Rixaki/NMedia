@@ -1,9 +1,7 @@
 package ru.netology.nmedia.util
 
 import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.widget.ImageView
-import androidx.core.net.toFile
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
@@ -13,12 +11,7 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import ru.netology.nmedia.R
-import ru.netology.nmedia.api.ApiService
-import ru.netology.nmedia.dto.MediaUpload
-import java.io.File
 
 fun ImageView.load(
     url: String,

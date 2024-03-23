@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import ru.netology.nmedia.api.ApiService
+import ru.netology.nmedia.api.AppApi
 import ru.netology.nmedia.dao.DraftPostDao
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dto.Attachment
@@ -24,11 +24,13 @@ import ru.netology.nmedia.error.ApiError
 import ru.netology.nmedia.error.NetworkError
 import ru.netology.nmedia.error.UnknownError
 import java.io.IOException
+import javax.inject.Inject
 
 
-class PostRepoImpl(
+class PostRepoImpl @Inject constructor(
     private val postDao: PostDao,
-    private val draftPostDao: DraftPostDao
+    private val draftPostDao: DraftPostDao,
+    private val appApi: AppApi
 ) : PostRepository {
 
     /*
@@ -132,7 +134,7 @@ class PostRepoImpl(
     override fun getNewerCount(id: Long): Flow<Int> = flow {
         while (true) {
             delay(10_000L)
-            val response = ApiService.service.getNewer(id)
+            val response = appApi.getNewer(id)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -188,7 +190,7 @@ class PostRepoImpl(
         try {
             val draftPost = draftPostDao.getPostById(id).toDto()
 
-            val response = ApiService.service
+            val response = appApi
                 .save(if (id > 0) draftPost else draftPost.copy(id = 0L))
             //id<0 have new posts
             //for uploading new post to api, id=0 (due to api arch)
@@ -211,7 +213,7 @@ class PostRepoImpl(
 
     override suspend fun getAll() {
         try {
-            val response = ApiService.service.getAll()
+            val response = appApi.getAll()
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -234,7 +236,7 @@ class PostRepoImpl(
 
     override suspend fun likeById(id: Long) {
         try {
-            val response = ApiService.service.like(id)//api like
+            val response = appApi.like(id)//api like
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             } else {
@@ -257,7 +259,7 @@ class PostRepoImpl(
 
     override suspend fun unLikeById(id: Long) {
         try {
-            val response = ApiService.service.unlike(id)//api unlike
+            val response = appApi.unlike(id)//api unlike
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             } else {
@@ -280,7 +282,7 @@ class PostRepoImpl(
 
     override suspend fun removeById(id: Long) {
         try {
-            val response = ApiService.service.deletePostById(id)//api delete
+            val response = appApi.deletePostById(id)//api delete
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             } else {
@@ -313,7 +315,7 @@ class PostRepoImpl(
 
     override suspend fun saveWithApi(post: Post) {
         try {
-            val response = ApiService.service.save(post)
+            val response = appApi.save(post)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -369,7 +371,7 @@ class PostRepoImpl(
                     )
                 )
             }
-            val response = ApiService.service.save(post)
+            val response = appApi.save(post)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -449,7 +451,7 @@ class PostRepoImpl(
 
     override suspend fun upload(upload: MediaUpload): Media {
         /*
-        return ApiService.service.upload(
+        return appApi.upload(
             MultipartBody.Part.createFormData(
                 "file",
                 upload.file.name,
@@ -463,7 +465,7 @@ class PostRepoImpl(
                     "file", upload.file.name, upload.file.asRequestBody()
                 )
 
-            val response = ApiService.service.upload(media)
+            val response = appApi.upload(media)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }

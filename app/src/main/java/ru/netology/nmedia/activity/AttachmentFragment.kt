@@ -9,15 +9,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.request.RequestOptions
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentAttachmentPostBinding
 import ru.netology.nmedia.util.StringArg
 import ru.netology.nmedia.util.load
-import ru.netology.nmedia.viewmodel.PostViewModel
 
+@AndroidEntryPoint
 class AttachmentFragment : Fragment() {
     companion object {
         var Bundle.urlArg: String? by StringArg
@@ -32,7 +32,7 @@ class AttachmentFragment : Fragment() {
             FragmentAttachmentPostBinding
                 .inflate(layoutInflater, container, false)
 
-        val viewModel: PostViewModel by activityViewModels()
+        //val viewModel: PostViewModel by activityViewModels()
 
         requireActivity().addMenuProvider(
             object : MenuProvider {

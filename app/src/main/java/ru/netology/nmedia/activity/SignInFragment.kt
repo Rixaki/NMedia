@@ -13,15 +13,18 @@ import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.asLiveData
 import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentSignInBinding
 import ru.netology.nmedia.viewmodel.SignViewModel
 
-
+@AndroidEntryPoint
 class SignInFragment : Fragment() {
+    private val signModel by viewModels<SignViewModel>()
+
     //for hiding menu item
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,9 +57,6 @@ class SignInFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val signModel by activityViewModels<SignViewModel>()
-        signModel.clearResponse()
-
         val binding = FragmentSignInBinding
             .inflate(layoutInflater, container, false)
 

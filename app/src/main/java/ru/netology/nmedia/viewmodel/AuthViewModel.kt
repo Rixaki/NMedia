@@ -1,23 +1,19 @@
 package ru.netology.nmedia.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.SupervisorJob
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.auth.AuthState
-import ru.netology.nmedia.auth.Login
-import ru.netology.nmedia.auth.Registration
-import ru.netology.nmedia.dto.MediaUpload
-import ru.netology.nmedia.error.ApiError
-import ru.netology.nmedia.service.FCMService
+import javax.inject.Inject
 
-class AuthViewModel : ViewModel() {
-    val data: Flow<AuthState> = AppAuth.getInstance()
+@HiltViewModel
+class AuthViewModel @Inject constructor(
+    private val appAuth: AppAuth
+) : ViewModel() {
+    val data: Flow<AuthState> = appAuth
         .authState
 
     val authenticated: Boolean
-        get() = AppAuth.getInstance().authState.value.id != 0L
+        get() = appAuth.authState.value.id != 0L
 }

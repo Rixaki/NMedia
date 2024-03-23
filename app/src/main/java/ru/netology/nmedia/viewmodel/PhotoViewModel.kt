@@ -1,14 +1,16 @@
 package ru.netology.nmedia.viewmodel
 
-import android.app.Application
 import android.net.Uri
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import ru.netology.nmedia.model.PhotoModel
 import java.io.File
+import javax.inject.Inject
 
-class PhotoViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class PhotoViewModel @Inject constructor() : ViewModel() {
 
     private val noPhoto = PhotoModel()
 

@@ -1,26 +1,27 @@
 package ru.netology.nmedia.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import ru.netology.nmedia.api.AppApi
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.auth.AuthState
 import ru.netology.nmedia.auth.Login
 import ru.netology.nmedia.auth.Registration
 import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.error.ApiError
+import javax.inject.Inject
 
-class SignViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class SignViewModel @Inject constructor(
+    private val appAuth: AppAuth,
+    private val appApi: AppApi
+) : ViewModel() {
 
     private val noAuth = AuthState()
     private val privateAuth = MutableStateFlow(noAuth)
@@ -41,25 +42,22 @@ class SignViewModel(application: Application) : AndroidViewModel(application) {
 
     fun changeAuth(authState: AuthState) {
         privateAuth.value = authState
-        AppAuth.getInstance().setAuth(
+        appAuth.setAuth(
             id = authState.id,
             token = authState.token,
             avatar = authState.avatarUrl
         )
     }
 
+    /*
     fun clearAuth() {
         privateAuth.value = noAuth
     }
+     */
 
     fun login(login: String, pass: String) : Unit {
-        val deferredResponse: Deferred<Result<AuthState>> =
-            CoroutineScope(Dispatchers.Default).async {
-                return@async Login.login(login, pass)
-            }
-
         viewModelScope.launch(SupervisorJob()) {
-            privateResponse.value = deferredResponse.await()
+            privateResponse.value = Login(appApi).login(login, pass)
             val newState = privateResponse.value.getOrNull()
             //println("newstate id ${newState?.id}")
             if (privateResponse.value.isSuccess && newState != null) {
@@ -74,14 +72,11 @@ class SignViewModel(application: Application) : AndroidViewModel(application) {
         name: String,
         uploadAvatar: MediaUpload?
     ): Unit {
-        val deferredResponse: Deferred<Result<AuthState>> =
-            CoroutineScope(Dispatchers.Default).async {
-                return@async Registration.register(login, pass, name, uploadAvatar)
-            }
-
-        viewModelScope.launch(SupervisorJob()) {
-            privateResponse.value = deferredResponse.await()
-            //println("value: ${privateResponse.value.getOrNull()}")
+        viewModelScope.launch() {
+            privateResponse.value =
+                Registration(appApi).register(login, pass, name, uploadAvatar)
+            //retrofit support flow switching for api requests
+            //viewModelScope include superjob+dispatcher.main
         }
     }
 }

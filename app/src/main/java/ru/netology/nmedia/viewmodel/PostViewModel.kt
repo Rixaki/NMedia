@@ -1,31 +1,29 @@
 package ru.netology.nmedia.viewmodel
 
 import android.annotation.SuppressLint
-import android.app.Application
 import android.net.Uri
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.auth.AppAuth
-import ru.netology.nmedia.db.AppDb
-import ru.netology.nmedia.db.AppDraftDb
 import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.model.FeedModelState
 import ru.netology.nmedia.model.PhotoModel
-import ru.netology.nmedia.repository.PostRepoImpl
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.util.SingleLiveEvent
 import java.io.File
+import javax.inject.Inject
 
 private val empty = Post(
     id = 0,
@@ -38,21 +36,18 @@ private val empty = Post(
 
 //viewmodel exist in 1 Activity!!!
 //class PostViewModel : ViewModel() {
+@HiltViewModel
 @SuppressLint("CheckResult")
-class PostViewModel(application: Application) : AndroidViewModel(application) {
-    //application extends context!!!
-    private val repository: PostRepository =
-        PostRepoImpl(
-            AppDb.getInstance(application).postDao,
-            AppDraftDb.getInstance(application).draftPostDao
-        )
-
+class PostViewModel @Inject constructor(
+    private val repository: PostRepository,
+    private val appAuth: AppAuth,
+) : ViewModel() {
     private val privateState = MutableLiveData<FeedModelState>()
     val dataState: LiveData<FeedModelState>
         get() = privateState
 
 
-    val data: LiveData<FeedModel> = AppAuth.getInstance()
+    val data: LiveData<FeedModel> = appAuth
         .authState
         .flatMapLatest { (myId, _, _) ->
             repository.mergedData.map { totalList ->

@@ -20,6 +20,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.AttachmentFragment.Companion.urlArg
 import ru.netology.nmedia.activity.NewOrEditPostFragment.Companion.textArg
@@ -32,20 +33,26 @@ import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.funcs.countToString
 import ru.netology.nmedia.viewmodel.AuthViewModel
 import ru.netology.nmedia.viewmodel.PostViewModel
-import ru.netology.nmedia.viewmodel.SignViewModel
+import javax.inject.Inject
 
 
 //class MainActivity : AppCompatActivity() {
 
+@AndroidEntryPoint
 class FeedFragment : Fragment() {
+    //private val dependencyContainer = DependencyContainer.getInstance()
     /*
-    companion object {
-        var Bundle.textArg: String? by StringArg
-        //"by StringArg" instead of:
-        //get() = getString(KEY_TEXT)
-        //set(value)= putString(KEY_TEXT, value)
-    }
-    */
+    private val viewModel: PostViewModel by viewModels(
+        ownerProducer = ::requireParentFragment
+    )
+
+     */
+    private val viewModel: PostViewModel by activityViewModels()
+
+    private val authModel : AuthViewModel by viewModels()
+
+    @Inject
+    lateinit var appAuth: AppAuth
 
     @SuppressLint("ResourceType")
     override fun onCreateView(
@@ -56,11 +63,15 @@ class FeedFragment : Fragment() {
         val binding =
             FragmentFeedBinding.inflate(layoutInflater, container, false)
 
-        val viewModel: PostViewModel by activityViewModels()
-        val authModel by viewModels<AuthViewModel>()
-        println("auth-ed ${authModel.authenticated}")
+        //val viewModel: PostViewModel by activityViewModels()
+
+        //val authModel by viewModels<AuthViewModel>()
+        //val authModel = ViewModelProvider(this@FeedFragment)[AuthViewModel::class.java]
+
+        //println("token ${authModel.data.asLiveData().value?.token}")
         //val signModel by viewModels<SignViewModel>()
         //signModel.clearResponse()
+
 
         //TODO: MENU RELOCATED FROM ACTIVITY
         requireActivity().addMenuProvider(object : MenuProvider {
@@ -82,7 +93,6 @@ class FeedFragment : Fragment() {
 
             //TODO: hidden main menu in signIn/signUp fragment
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                //TODO: HOMEWORK with fragment navigations
                 return when (menuItem.itemId) {
                     R.id.signIn -> {
                         findNavController().navigate(R.id.action_feedFragment_to_signInFragment)
@@ -101,7 +111,7 @@ class FeedFragment : Fragment() {
                             .setIcon(R.drawable.baseline_logout_48)
                             .setNegativeButton("Cancel", null)
                             .setPositiveButton("Sign Out") { _,_ ->
-                                AppAuth.getInstance().removeAuth()
+                               appAuth.removeAuth()
                             }
                             .show()
                         true
@@ -111,6 +121,7 @@ class FeedFragment : Fragment() {
                 }
             }
         })//addMenuProvider
+
 
         binding.newPostButton.setOnClickListener {
             if (authModel.authenticated) {

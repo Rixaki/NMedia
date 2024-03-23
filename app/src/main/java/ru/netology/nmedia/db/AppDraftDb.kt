@@ -1,8 +1,6 @@
 package ru.netology.nmedia.db
 
-import android.content.Context
 import androidx.room.Database
-import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import ru.netology.nmedia.dao.DraftPostDao
@@ -18,20 +16,6 @@ abstract class AppDraftDb : RoomDatabase() {
         @Volatile
         private var instance: AppDraftDb? = null
 
-        fun getInstance(context: Context): AppDraftDb {
-            return instance ?: synchronized(this) {
-                instance ?: buildDatabase(context).also { instance = it }
-            }
-        }
-
-        private fun buildDatabase(context: Context) =
-            Room.databaseBuilder(
-                context,
-                AppDraftDb::class.java,
-                "appDraftDb.db"
-            )
-                .fallbackToDestructiveMigration()
-                .allowMainThreadQueries()
-                .build()
+        //buildDatabase migrated to DI
     }
 }
